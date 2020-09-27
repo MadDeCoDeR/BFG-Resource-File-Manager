@@ -1,0 +1,23 @@
+﻿DOOM 3 BFG Edition .resources specification
+
+|Byte       |Size   |Swaped|Description                                                            |
+|-----------|:-----:|:----:|----------------------------------------------------------------------:|
+|0x0        |4      | Yes  |The file's "magic" identifier (0xD000000D)                             |
+|0x4        |4      | Yes  |The table of Contents offset (point to the end of the data) (tocoffset)|
+|0x8        |4      | Yes  |The byte length of the Table of Contents (tocsize)                     |
+|tocoffset  |4      | Yes  |The number of files inside the resource file                           |
+|tocoffset+4|tocsize| No   |Table of Contents                                                      |
+
+Each Table of Contents entry is consist of the following
+
+|Byte             |Size           |Swaped|Description                                       |
+|-----------------|:-------------:|:----:|-------------------------------------------------:|
+|0x0              |4              | No   |The filename's length                             |
+|0x4              |filename length| No   |The filename                                      |
+|filename length  |4              | Yes  |The file's offset (point at the start of the file)|
+|filename length+4|4              | Yes  |The size of the file (in bytes)                   |
+
+On both tables if swaped is 'Yes' it means that the first and last bytes are switched as much as and the 2nd and 3rd bytes between them.
+
+The DOOM 3 BFG .resources file format file size is limited due to it's usage of 32-bit integers for offset and size representations. 
+That limits the file size to ~3GB, while the engine index is having performace issues with .resources > 1GB.

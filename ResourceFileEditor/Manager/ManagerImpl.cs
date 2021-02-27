@@ -1,8 +1,32 @@
-﻿using ResourceFileEditor.TableOfContent;
+﻿/*
+===========================================================================
+
+BFG Resource File Manager GPL Source Code
+Copyright (C) 2021 George Kalampokis
+
+This file is part of the BFG Resource File Manager GPL Source Code ("BFG Resource File Manager Source Code").
+
+BFG Resource File Manager Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BFG Resource File Manager Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+===========================================================================
+*/
+using ResourceFileEditor.TableOfContent;
 using ResourceFileEditor.utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
 
 namespace ResourceFileEditor.Manager
 {
@@ -10,15 +34,18 @@ namespace ResourceFileEditor.Manager
     {
         private static readonly UInt32 RESOURCE_FILE_MAGIC = 0xD000000D;
         private static readonly Int32 RESOURCE_FILE_HEAD_OFFSET = 12;
-        private Form1 form1;
+        private ManagerUi managerUI;
 
         private List<TableOfContentEntry> contents;
 
+        private bool isDirty = false;
+        private bool closeAfterSave = false;
+
         string resourceFile;
 
-        public ManagerImpl(Form1 form1)
+        public ManagerImpl(ManagerUi managerUI)
         {
-            this.form1 = form1;
+            this.managerUI = managerUI;
         }
         public void loadFile(Stream file)
         {
@@ -37,17 +64,17 @@ namespace ResourceFileEditor.Manager
                         contents = new List<TableOfContentEntry>(TableOfContentEntry.parseBytes(toc, Convert.ToInt32(numberOfFiles)));
                         for (int i = 0; i < contents.Count; i++)
                         {
-                            NodeUtils.addNode(form1.GetTreeView().Nodes[0].Nodes, PathParser.parsePath(contents[i].Filename));
+                            NodeUtils.addNode(managerUI.GetTreeView().Nodes[0].Nodes, PathParser.parsePath(contents[i].Filename));
                            // form1.GetTreeView().Nodes.Add(PathParser.parsePath(tocs[i].Filename));
                             Console.WriteLine(contents[i].Filename);
                         }
-                        
+                        resourceFile = ((FileStream)file).Name;
+                        managerUI.UpdateTitle(GetResourceFileName(), isDirty);
                     }
-                    resourceFile = ((FileStream)file).Name;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK);
                     Console.WriteLine(ex.StackTrace);
                 }
             }
@@ -60,6 +87,14 @@ namespace ResourceFileEditor.Manager
             {
                 try
                 {
+                    string tempres;
+                    if (((FileStream)file).Name == resourceFile)
+                    {
+                        tempres = resourceFile + ".bak";
+                    } else
+                    {
+                        tempres = resourceFile;
+                    }
                     FileManager.FileManager.writeUint32Swapped(file, 0x0, RESOURCE_FILE_MAGIC);
                     FileManager.FileManager.writeUint32Swapped(file, 4, 0);
                     FileManager.FileManager.writeUint32Swapped(file, 8, 0);
@@ -70,14 +105,22 @@ namespace ResourceFileEditor.Manager
                         byte[] buffer;
                         if (contents[i].file == null)
                         {
-                            Stream resourceStream = File.OpenRead(resourceFile);
+                            Stream resourceStream = File.OpenRead(tempres);
                             buffer = FileManager.FileManager.readByteArray(resourceStream, (int)contents[i].filePos, (int)contents[i].fileSize);
+                            resourceStream.Close();
                         }
                         else
                         {
                             MemoryStream ms = new MemoryStream();
+                            contents[i].file.Seek(0, SeekOrigin.Begin);
                             contents[i].file.CopyTo(ms);
                             buffer = ms.ToArray();
+                            if (buffer.Length == 0)
+                            {
+                                throw new Exception("Empty stream");
+                            }
+                            contents[i].file.Close();
+                            contents[i].file = null;
                         }
                         FileManager.FileManager.writeByteArray(file, (int)(RESOURCE_FILE_HEAD_OFFSET + dataOffset), buffer);
                         contents[i].filePos = (uint)(RESOURCE_FILE_HEAD_OFFSET + dataOffset);
@@ -95,12 +138,23 @@ namespace ResourceFileEditor.Manager
                         tableEntryOffset += Convert.ToUInt32(buffer.Length);
                     }
                     FileManager.FileManager.writeUint32Swapped(file, 8, tableEntryOffset);
+                    if (((FileStream)file).Name == resourceFile)
+                    {
+
+                        File.Delete(tempres);
+                    }
                     resourceFile = ((FileStream)file).Name;
                     file.Close();
+                    isDirty = false;
+                    managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
+                    if (closeAfterSave)
+                    {
+                        CloseFile();
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK);
                     Console.WriteLine(ex.StackTrace);
                 }
             }
@@ -113,12 +167,17 @@ namespace ResourceFileEditor.Manager
             toc.fileSize = (uint)((FileStream)file).Length;
             toc.file = file;
             contents.Add(toc);
-            NodeUtils.addNode(form1.GetTreeView().Nodes[0].Nodes, PathParser.parsePath(relativePath));
+            isDirty = true;
+            managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
+            NodeUtils.addNode(managerUI.GetTreeView().Nodes[0].Nodes, PathParser.parsePath(relativePath));
         }
 
         public void CreateFile()
         {
             contents = new List<TableOfContentEntry>();
+            isDirty = true;
+            resourceFile = "New File";
+            managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
         }
 
         public void DeleteEntry(string relativePath)
@@ -129,6 +188,8 @@ namespace ResourceFileEditor.Manager
             if (content != null)
             {
                 contents.Remove(content);
+                isDirty = true;
+                managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
             }
         }
 
@@ -137,7 +198,7 @@ namespace ResourceFileEditor.Manager
             TableOfContentEntry content = FindContentByPath(relativePath);
             if (content != null)
             {
-                string outputPath = outputFolder + relativePath.Substring(relativePath.LastIndexOf("/"));
+                string outputPath = outputFolder + "/" + relativePath.Substring(relativePath.LastIndexOf("/") + 1);
                 FileStream file = new FileStream(outputPath, FileMode.OpenOrCreate);
                 if (content.file != null)
                 {
@@ -148,6 +209,7 @@ namespace ResourceFileEditor.Manager
                     Stream resourceStream = File.OpenRead(resourceFile);
                     byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
                     file.Write(buffer, 0, buffer.Length);
+                    resourceStream.Close();
                 }
                 file.Close();
             }
@@ -182,6 +244,85 @@ namespace ResourceFileEditor.Manager
             }
 
             return 16 + tocSize + fileSize;
+        }
+
+        public void CloseFile()
+        {
+            if (isDirty)
+            {
+                DialogResult result = MessageBox.Show("File has not been saved, do you want to save it?", "Warning", MessageBoxButtons.YesNo);
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        closeAfterSave = true;
+                        managerUI.executeSave();
+                        break;
+                    case DialogResult.No:
+                        doClose();
+                        return;
+                }
+            }
+            else
+            {
+                doClose();
+            }
+        }
+
+        private void doClose()
+        {
+            isDirty = false;
+            managerUI.clearEditor();
+            managerUI.UpdateTitle(null, isDirty);
+            resourceFile = null;
+            contents = null;
+            closeAfterSave = false;   
+        }
+
+        public Stream loadEntry(string relativePath)
+        {
+            TableOfContentEntry content = FindContentByPath(relativePath);
+            if (content != null)
+            {
+                if (content.file != null)
+                {
+                    return content.file;
+                } else
+                {
+                    Stream resourceStream = File.OpenRead(resourceFile);
+                    byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
+                    resourceStream.Close();
+                    return new MemoryStream(buffer);
+                }
+            }
+            return null;
+        }
+
+        public void updateEntry(string relativePath, Stream data)
+        {
+            TableOfContentEntry content = FindContentByPath(relativePath);
+            if (content != null)
+            {
+                content.filePos = 0;
+                content.fileSize = (uint)data.Length;
+                content.file = data;
+                isDirty = true;
+                managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
+            }
+        }
+
+        public string GetResourceFileName()
+        {
+            if (resourceFile != null)
+            {
+                int lastIndex = resourceFile.LastIndexOf(FileCheck.getPathSeparator());
+                return resourceFile.Substring(lastIndex + 1);
+            }
+            return null;
+        }
+
+        public string GetResourceFullPath()
+        {
+            return resourceFile;
         }
     }
 }

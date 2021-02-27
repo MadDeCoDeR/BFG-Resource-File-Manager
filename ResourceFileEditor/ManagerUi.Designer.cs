@@ -1,6 +1,29 @@
-﻿namespace ResourceFileEditor
+﻿/*
+===========================================================================
+
+BFG Resource File Manager GPL Source Code
+Copyright (C) 2021 George Kalampokis
+
+This file is part of the BFG Resource File Manager GPL Source Code ("BFG Resource File Manager Source Code").
+
+BFG Resource File Manager Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BFG Resource File Manager Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+===========================================================================
+*/
+namespace ResourceFileEditor
 {
-    partial class Form1
+    partial class ManagerUi
     {
         /// <summary>
         /// Required designer variable.
@@ -38,14 +61,16 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.entryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteEntryToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.addEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.extractEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteEntryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addFolderContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractEntryContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteEntryContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
@@ -119,8 +144,9 @@
             // 
             this.entryToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addFolderToolStripMenuItem,
-            this.addToolStripMenuItem,
-            this.deleteEntryToolStripMenuItem1});
+            this.extractEntryToolStripMenuItem,
+            this.deleteEntryToolStripMenuItem,
+            this.addToolStripMenuItem});
             this.entryToolStripMenuItem.Name = "entryToolStripMenuItem";
             this.entryToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.entryToolStripMenuItem.Text = "Entry";
@@ -128,61 +154,9 @@
             // addFolderToolStripMenuItem
             // 
             this.addFolderToolStripMenuItem.Name = "addFolderToolStripMenuItem";
-            this.addFolderToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
-            this.addFolderToolStripMenuItem.Text = "Add Entry";
+            this.addFolderToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.addFolderToolStripMenuItem.Text = "Add Folder";
             this.addFolderToolStripMenuItem.Click += new System.EventHandler(this.addFolderToolStripMenuItem_Click);
-            // 
-            // addToolStripMenuItem
-            // 
-            this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
-            this.addToolStripMenuItem.Text = "Import File";
-            this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
-            // 
-            // deleteEntryToolStripMenuItem1
-            // 
-            this.deleteEntryToolStripMenuItem1.Name = "deleteEntryToolStripMenuItem1";
-            this.deleteEntryToolStripMenuItem1.Size = new System.Drawing.Size(137, 22);
-            this.deleteEntryToolStripMenuItem1.Text = "Delete Entry";
-            this.deleteEntryToolStripMenuItem1.Click += new System.EventHandler(this.deleteEntryToolStripMenuItem1_Click);
-            // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 24);
-            this.splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.treeView1);
-            this.splitContainer1.Size = new System.Drawing.Size(800, 424);
-            this.splitContainer1.SplitterDistance = 266;
-            this.splitContainer1.TabIndex = 1;
-            // 
-            // treeView1
-            // 
-            this.treeView1.Location = new System.Drawing.Point(4, 4);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(259, 419);
-            this.treeView1.TabIndex = 0;
-            this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
-            this.treeView1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseClick);
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addEntryToolStripMenuItem,
-            this.extractEntryToolStripMenuItem,
-            this.deleteEntryToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(141, 70);
-            // 
-            // addEntryToolStripMenuItem
-            // 
-            this.addEntryToolStripMenuItem.Name = "addEntryToolStripMenuItem";
-            this.addEntryToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
-            this.addEntryToolStripMenuItem.Text = "Add Entry";
-            this.addEntryToolStripMenuItem.Click += new System.EventHandler(this.addEntryToolStripMenuItem_Click);
             // 
             // extractEntryToolStripMenuItem
             // 
@@ -197,6 +171,81 @@
             this.deleteEntryToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.deleteEntryToolStripMenuItem.Text = "Delete Entry";
             this.deleteEntryToolStripMenuItem.Click += new System.EventHandler(this.deleteEntryToolStripMenuItem_Click);
+            // 
+            // addToolStripMenuItem
+            // 
+            this.addToolStripMenuItem.Name = "addToolStripMenuItem";
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.addToolStripMenuItem.Text = "Import File";
+            this.addToolStripMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 24);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.treeView1);
+            this.splitContainer1.Size = new System.Drawing.Size(800, 424);
+            this.splitContainer1.SplitterDistance = 360;
+            this.splitContainer1.TabIndex = 1;
+            // 
+            // treeView1
+            // 
+            this.treeView1.AllowDrop = true;
+            this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView1.FullRowSelect = true;
+            this.treeView1.HideSelection = false;
+            this.treeView1.HotTracking = true;
+            this.treeView1.Location = new System.Drawing.Point(0, 0);
+            this.treeView1.Name = "treeView1";
+            this.treeView1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.treeView1.Size = new System.Drawing.Size(360, 424);
+            this.treeView1.TabIndex = 0;
+            this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
+            this.treeView1.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.treeView1_NodeMouseClick);
+            this.treeView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeView1_DragDrop);
+            this.treeView1.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeView1_DragEnter);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addFolderContextMenuItem,
+            this.extractEntryContextMenuItem,
+            this.deleteEntryContextMenuItem,
+            this.addContextMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(141, 92);
+            // 
+            // addFolderContextMenuItem
+            // 
+            this.addFolderContextMenuItem.Name = "addFolderContextMenuItem";
+            this.addFolderContextMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.addFolderContextMenuItem.Text = "Add Folder";
+            this.addFolderContextMenuItem.Click += new System.EventHandler(this.addFolderToolStripMenuItem_Click);
+            // 
+            // extractEntryContextMenuItem
+            // 
+            this.extractEntryContextMenuItem.Name = "extractEntryContextMenuItem";
+            this.extractEntryContextMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.extractEntryContextMenuItem.Text = "Extract Entry";
+            this.extractEntryContextMenuItem.Click += new System.EventHandler(this.extractEntryToolStripMenuItem_Click);
+            // 
+            // deleteEntryContextMenuItem
+            // 
+            this.deleteEntryContextMenuItem.Name = "deleteEntryContextMenuItem";
+            this.deleteEntryContextMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.deleteEntryContextMenuItem.Text = "Delete Entry";
+            this.deleteEntryContextMenuItem.Click += new System.EventHandler(this.deleteEntryToolStripMenuItem_Click);
+            // 
+            // addContextMenuItem
+            // 
+            this.addContextMenuItem.Name = "addContextMenuItem";
+            this.addContextMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.addContextMenuItem.Text = "Import File";
+            this.addContextMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -234,21 +283,22 @@
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
             // 
-            // Form1
+            // ManagerUi
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AllowDrop = true;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(800, 470);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.statusStrip1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
-            this.MaximizeBox = false;
-            this.Name = "Form1";
-            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.Text = "BFG Resource File Manager";
+            this.MinimumSize = new System.Drawing.Size(408, 254);
+            this.Name = "ManagerUi";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ManagerUi_FormClosed);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -276,11 +326,13 @@
         private System.Windows.Forms.ToolStripMenuItem entryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addFolderToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem addEntryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteEntryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem deleteEntryToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem extractEntryToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem addContextMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addFolderContextMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteEntryContextMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem extractEntryContextMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;

@@ -21,23 +21,12 @@ along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.o
 
 ===========================================================================
 */
-namespace ResourceFileEditor.utils
-{
-    class ByteSwap
-    {
-        public static void swapBytes(byte[] buffer)
-        {
-            for (int i = 0; i < (buffer.Length / 2); i++)
-            {
-                swapSingleBytes(ref buffer[i], ref buffer[buffer.Length - (i + 1)]);
-            }
-        }
+using System.Windows.Forms;
 
-        private static void swapSingleBytes(ref byte byte1, ref byte byte2)
-        {
-            byte temp = byte1;
-            byte1 = byte2;
-            byte2 = temp;
-        }
+namespace ResourceFileEditor.Editor
+{
+    interface Editor
+    {
+        void start(Panel panel, TreeNode node);
     }
 }

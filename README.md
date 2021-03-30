@@ -5,6 +5,10 @@ This is a file manager for DOOM 3 BFG Edition/DOOM 3 (2019) .resources files.
 It allows you to see, extract, delete, preview and edit the files inside .resources files.
 Also it allows you to create and edit .resource files.
 
+THE PROJECT HAS PRE_BUILD BINARIES (.EXE FILES) HERE: https://github.com/MadDeCoDeR/BFG-Resource-File-Manager/releases
+YOU DONT HAVE TO FOLLOW THE INSTRUCTIONS BELOW. THOSE INSTRUCTIONS ARE FOR DEVELOPERS WHO WANT TO TEST OR CONTRIBUTE TO THE PROJECT.
+IF YOU ARE A LINUX USER MAKE SURE TO DOWNLOAD AND INSTALL THE MONO PROJECT: https://www.mono-project.com/download/stable/#download-lin
+
 Build it yourself (BIY)
 =======================
 

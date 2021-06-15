@@ -51,6 +51,7 @@ namespace ResourceFileEditor.utils
                     case "png":
                         return FileTypes.IMAGE;
                     case "wav":
+                    case "idwav":
                         return FileTypes.AUDIO;
                 }
             }

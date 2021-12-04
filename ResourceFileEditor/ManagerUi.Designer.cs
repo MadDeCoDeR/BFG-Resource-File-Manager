@@ -76,6 +76,8 @@ namespace ResourceFileEditor
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.exportToStandardFormatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportToStandardFormatToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -146,7 +148,8 @@ namespace ResourceFileEditor
             this.addFolderToolStripMenuItem,
             this.extractEntryToolStripMenuItem,
             this.deleteEntryToolStripMenuItem,
-            this.addToolStripMenuItem});
+            this.addToolStripMenuItem,
+            this.exportToStandardFormatToolStripMenuItem1});
             this.entryToolStripMenuItem.Name = "entryToolStripMenuItem";
             this.entryToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.entryToolStripMenuItem.Text = "Entry";
@@ -215,35 +218,36 @@ namespace ResourceFileEditor
             this.addFolderContextMenuItem,
             this.extractEntryContextMenuItem,
             this.deleteEntryContextMenuItem,
-            this.addContextMenuItem});
+            this.addContextMenuItem,
+            this.exportToStandardFormatToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(141, 92);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(214, 114);
             // 
             // addFolderContextMenuItem
             // 
             this.addFolderContextMenuItem.Name = "addFolderContextMenuItem";
-            this.addFolderContextMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.addFolderContextMenuItem.Size = new System.Drawing.Size(213, 22);
             this.addFolderContextMenuItem.Text = "Add Folder";
             this.addFolderContextMenuItem.Click += new System.EventHandler(this.addFolderToolStripMenuItem_Click);
             // 
             // extractEntryContextMenuItem
             // 
             this.extractEntryContextMenuItem.Name = "extractEntryContextMenuItem";
-            this.extractEntryContextMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.extractEntryContextMenuItem.Size = new System.Drawing.Size(213, 22);
             this.extractEntryContextMenuItem.Text = "Extract Entry";
             this.extractEntryContextMenuItem.Click += new System.EventHandler(this.extractEntryToolStripMenuItem_Click);
             // 
             // deleteEntryContextMenuItem
             // 
             this.deleteEntryContextMenuItem.Name = "deleteEntryContextMenuItem";
-            this.deleteEntryContextMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.deleteEntryContextMenuItem.Size = new System.Drawing.Size(213, 22);
             this.deleteEntryContextMenuItem.Text = "Delete Entry";
             this.deleteEntryContextMenuItem.Click += new System.EventHandler(this.deleteEntryToolStripMenuItem_Click);
             // 
             // addContextMenuItem
             // 
             this.addContextMenuItem.Name = "addContextMenuItem";
-            this.addContextMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.addContextMenuItem.Size = new System.Drawing.Size(213, 22);
             this.addContextMenuItem.Text = "Import File";
             this.addContextMenuItem.Click += new System.EventHandler(this.addToolStripMenuItem_Click);
             // 
@@ -282,6 +286,20 @@ namespace ResourceFileEditor
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
+            // 
+            // exportToStandardFormatToolStripMenuItem
+            // 
+            this.exportToStandardFormatToolStripMenuItem.Name = "exportToStandardFormatToolStripMenuItem";
+            this.exportToStandardFormatToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.exportToStandardFormatToolStripMenuItem.Text = "Export to Standard Format";
+            this.exportToStandardFormatToolStripMenuItem.Click += new System.EventHandler(this.exportToStandardFormatToolStripMenuItem_Click);
+            // 
+            // exportToStandardFormatToolStripMenuItem1
+            // 
+            this.exportToStandardFormatToolStripMenuItem1.Name = "exportToStandardFormatToolStripMenuItem1";
+            this.exportToStandardFormatToolStripMenuItem1.Size = new System.Drawing.Size(213, 22);
+            this.exportToStandardFormatToolStripMenuItem1.Text = "Export to Standard Format";
+            this.exportToStandardFormatToolStripMenuItem1.Click += new System.EventHandler(this.exportToStandardFormatToolStripMenuItem1_Click);
             // 
             // ManagerUi
             // 
@@ -338,6 +356,8 @@ namespace ResourceFileEditor
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
+        private System.Windows.Forms.ToolStripMenuItem exportToStandardFormatToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportToStandardFormatToolStripMenuItem1;
     }
 }
 

@@ -29,6 +29,23 @@ namespace ResourceFileEditor.FileManager
 {
     class FileManager
     {
+        public static UInt16 readUint16(Stream stream, int pos)
+        {
+            byte[] buffer = new byte[2];
+            stream.Position = pos;
+            stream.Read(buffer, 0, buffer.Length);
+            return BitConverter.ToUInt16(buffer, 0);
+        }
+
+        public static UInt16 readUint16Swapped(Stream stream, int pos)
+        {
+            byte[] buffer = new byte[2];
+            stream.Position = pos;
+            stream.Read(buffer, 0, buffer.Length);
+            ByteSwap.swapBytes(buffer);
+            return BitConverter.ToUInt16(buffer, 0);
+        }
+
         public static UInt32 readUint32(Stream stream, int pos)
         {
             byte[] buffer = new byte[4];
@@ -44,6 +61,40 @@ namespace ResourceFileEditor.FileManager
             stream.Read(buffer, 0, buffer.Length);
             ByteSwap.swapBytes(buffer);
             return BitConverter.ToUInt32(buffer, 0);
+        }
+
+        public static int readInt(Stream stream, int pos)
+        {
+            byte[] buffer = new byte[4];
+            stream.Position = pos;
+            stream.Read(buffer, 0, buffer.Length);
+            return BitConverter.ToInt32(buffer, 0);
+        }
+
+        public static int readIntSwapped(Stream stream, int pos)
+        {
+            byte[] buffer = new byte[4];
+            stream.Position = pos;
+            stream.Read(buffer, 0, buffer.Length);
+            ByteSwap.swapBytes(buffer);
+            return BitConverter.ToInt32(buffer, 0);
+        }
+
+        public static UInt64 readUint64(Stream stream, int pos)
+        {
+            byte[] buffer = new byte[4];
+            stream.Position = pos;
+            stream.Read(buffer, 0, buffer.Length);
+            return BitConverter.ToUInt64(buffer, 0);
+        }
+
+        public static UInt64 readUint64Swapped(Stream stream, int pos)
+        {
+            byte[] buffer = new byte[8];
+            stream.Position = pos;
+            stream.Read(buffer, 0, buffer.Length);
+            ByteSwap.swapBytes(buffer);
+            return BitConverter.ToUInt64(buffer, 0);
         }
 
         public static byte[] readByteArray(Stream stream, int pos, int size)

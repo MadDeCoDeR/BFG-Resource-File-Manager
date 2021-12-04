@@ -38,6 +38,11 @@ namespace ResourceFileEditor.utils
             return name.Contains(".");
         }
 
+        public static Boolean isExportableToStandard(string name)
+        {
+            return name.EndsWith("idwav");
+        }
+
         public static FileTypes getFileType(Stream file, string filename)
         {
             string fileext = filename.Substring(filename.LastIndexOf(".") + 1);
@@ -46,7 +51,7 @@ namespace ResourceFileEditor.utils
                 switch (fileext)
                 {
                     case "tga":
-                    case "bimage":
+                    //case "bimage": //GK: Not yet
                     case "jpg":
                     case "png":
                         return FileTypes.IMAGE;

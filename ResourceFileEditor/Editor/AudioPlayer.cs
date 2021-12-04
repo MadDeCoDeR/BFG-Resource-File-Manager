@@ -22,6 +22,7 @@ along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.o
 ===========================================================================
 */
 using ResourceFileEditor.Manager;
+using ResourceFileEditor.Manager.Audio;
 using ResourceFileEditor.utils;
 using System;
 using System.IO;
@@ -45,6 +46,10 @@ namespace ResourceFileEditor.Editor
             string relativePath = PathParser.NodetoPath(node);
             Stream file = manager.loadEntry(relativePath);
             file.Seek(0, SeekOrigin.Begin);
+            if (relativePath.EndsWith("idwav"))
+            {
+                file = AudioManager.LoadFile(file);
+            }
             audioPlayer = new SoundPlayer(file);
             Panel playerPanel = new Panel();
             playerPanel.Width = panel.Width;

@@ -153,6 +153,7 @@ namespace ResourceFileEditor
                 addFolderContextMenuItem.Visible = !FileCheck.isFile(treeView1.SelectedNode.Text);
                 deleteEntryContextMenuItem.Visible = FileCheck.isFile(treeView1.SelectedNode.Text);
                 extractEntryContextMenuItem.Visible = FileCheck.isFile(treeView1.SelectedNode.Text);
+                exportToStandardFormatToolStripMenuItem.Visible = FileCheck.isExportableToStandard(treeView1.SelectedNode.Text);
                 addContextMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
                 contextMenuStrip1.Show(treeView1, e.Location);
             }
@@ -254,6 +255,7 @@ namespace ResourceFileEditor
             deleteEntryToolStripMenuItem.Visible = FileCheck.isFile(e.Node.Text);
             extractEntryToolStripMenuItem.Visible = FileCheck.isFile(e.Node.Text);
             addToolStripMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
+            exportToStandardFormatToolStripMenuItem1.Visible = FileCheck.isExportableToStandard(e.Node.Text);
             splitContainer1.Panel2.Controls.Clear();
             if (FileCheck.isFile(e.Node.Text))
             {
@@ -403,6 +405,35 @@ namespace ResourceFileEditor
             relativePath = relativeDirectory + relativePath;
             manager.AddFile(myStream, relativePath);
             updateToolStripBar(toolStripStatusLabel1.Text);
+        }
+
+        private void exportToStandardFormatToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            exportToStandard_logic();
+        }
+
+        private void exportToStandard_logic()
+        {
+            TreeNode node = treeView1.SelectedNode;
+            if (node == null)
+            {
+                MessageBox.Show("Please select a folder", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            string relativePath = PathParser.NodetoPath(node);
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            fbd.Description = "Select Folder to export the file into";
+            fbd.ShowDialog();
+
+            if (fbd.SelectedPath != null)
+            {
+                manager.ExportEntry(relativePath, fbd.SelectedPath);
+            }
+
+        }
+
+        private void exportToStandardFormatToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            exportToStandard_logic();
         }
     }
 

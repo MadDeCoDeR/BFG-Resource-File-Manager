@@ -21,6 +21,7 @@ along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.o
 
 ===========================================================================
 */
+using ResourceFileEditor.Manager.Audio;
 using ResourceFileEditor.TableOfContent;
 using ResourceFileEditor.utils;
 using System;
@@ -210,6 +211,46 @@ namespace ResourceFileEditor.Manager
                     byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
                     file.Write(buffer, 0, buffer.Length);
                     resourceStream.Close();
+                }
+                file.Close();
+            }
+        }
+
+        public void ExportEntry(string relativePath, string outputFolder)
+        {
+            TableOfContentEntry content = FindContentByPath(relativePath);
+            Stream exportedFile = null;
+            if (content != null)
+            {
+                string outputPath = outputFolder + "/" + relativePath.Substring(relativePath.LastIndexOf("/") + 1);
+                string fileExtension = outputPath.Substring(outputPath.LastIndexOf(".") + 1);
+                switch (fileExtension)
+                {
+                    case "idwav":
+                        outputPath = outputPath.Replace("idwav", "wav");
+                        break;
+                }
+                FileStream file = new FileStream(outputPath, FileMode.OpenOrCreate);
+                if (content.file != null)
+                {
+                    content.file.CopyTo(file);
+                }
+                else
+                {
+                    Stream resourceStream = File.OpenRead(resourceFile);
+                    byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
+
+                    file.Write(buffer, 0, buffer.Length);
+                    resourceStream.Close();
+                }
+                switch(fileExtension)
+                {
+                    case "idwav":
+                        exportedFile = AudioManager.LoadFile(file);
+                        file.Position = 0;
+                        exportedFile.CopyTo(file);
+                        exportedFile.Close();
+                        break;
                 }
                 file.Close();
             }

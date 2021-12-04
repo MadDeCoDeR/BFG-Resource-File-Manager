@@ -22,6 +22,7 @@ along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.o
 ===========================================================================
 */
 using ResourceFileEditor.Manager;
+using ResourceFileEditor.Manager.Image;
 using ResourceFileEditor.utils;
 using StbImageSharp;
 using System;
@@ -55,6 +56,8 @@ namespace ResourceFileEditor.Editor
             if (relativePath.EndsWith("bimage"))
             {
                 //TODO
+                ImageManager imageManager = new ImageManager();
+                pictureBox.Image = imageManager.LoadImage(file);
             }
             else
             {
@@ -66,7 +69,7 @@ namespace ResourceFileEditor.Editor
 
         private void disposeImage(object sender, EventArgs e)
         {
-            if (((PictureBox)sender).Parent == null)
+            if (((PictureBox)sender).Parent == null && ((PictureBox)sender).Image != null)
             {
                 ((PictureBox)sender).Image.Dispose();
                 ((PictureBox)sender).Image = null;

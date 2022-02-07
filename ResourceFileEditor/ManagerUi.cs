@@ -147,13 +147,14 @@ namespace ResourceFileEditor
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            
+            treeView1.SelectedNode = e.Node;
             if (e.Button == MouseButtons.Right)
             {
-                addFolderContextMenuItem.Visible = !FileCheck.isFile(treeView1.SelectedNode.Text);
-                deleteEntryContextMenuItem.Visible = FileCheck.isFile(treeView1.SelectedNode.Text);
-                extractEntryContextMenuItem.Visible = FileCheck.isFile(treeView1.SelectedNode.Text);
-                exportToStandardFormatToolStripMenuItem.Visible = FileCheck.isExportableToStandard(treeView1.SelectedNode.Text);
+                addFolderContextMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
+                deleteEntryContextMenuItem.Visible = true;
+                deleteEntryContextMenuItem.Text = FileCheck.isFile(e.Node.Text) ? "Delete Entry" : "Delete Folder";
+                extractEntryContextMenuItem.Visible = FileCheck.isFile(e.Node.Text);
+                exportToStandardFormatToolStripMenuItem.Visible = FileCheck.isExportableToStandard(e.Node.Text);
                 addContextMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
                 contextMenuStrip1.Show(treeView1, e.Location);
             }
@@ -188,27 +189,40 @@ namespace ResourceFileEditor
 
         private void deleteEntryToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            DeleteEntry_logic();
+            DeleteEntry_logic(treeView1.SelectedNode);
         }
 
         private void deleteEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DeleteEntry_logic();
+            DeleteEntry_logic(treeView1.SelectedNode);
         }
 
-        private void DeleteEntry_logic()
-        {
-            TreeNode node = treeView1.SelectedNode;
-            string relativePath = PathParser.NodetoPath(node);
-            manager.DeleteEntry(relativePath);
-            updateToolStripBar(toolStripStatusLabel1.Text);
-            node = treeView1.SelectedNode;
-            if (node.Parent == null)
+        private void DeleteEntry_logic(TreeNode node, bool removeNode = true)
+        {   
+            if (FileCheck.isFile(node.Text))
             {
-                treeView1.Nodes.Remove(node);
-            } else
+                string relativePath = PathParser.NodetoPath(node);
+                manager.DeleteEntry(relativePath);
+                updateToolStripBar(toolStripStatusLabel1.Text);
+            }
+            else
             {
-                node.Parent.Nodes.Remove(node);
+                int nomofchilds = node.Nodes.Count;
+                for(int i=0; i < nomofchilds; i++)
+                {
+                    DeleteEntry_logic(node.Nodes[i], false);
+                }
+            }
+            if (removeNode)
+            {
+                if (node.Parent == null)
+                {
+                    treeView1.Nodes.Remove(node);
+                }
+                else
+                {
+                    node.Parent.Nodes.Remove(node);
+                }
             }
         }
 
@@ -252,7 +266,8 @@ namespace ResourceFileEditor
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             addFolderToolStripMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
-            deleteEntryToolStripMenuItem.Visible = FileCheck.isFile(e.Node.Text);
+            deleteEntryToolStripMenuItem.Visible = true;
+            deleteEntryToolStripMenuItem.Text = FileCheck.isFile(e.Node.Text) ? "Delete Entry" : "Delete Folder";
             extractEntryToolStripMenuItem.Visible = FileCheck.isFile(e.Node.Text);
             addToolStripMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
             exportToStandardFormatToolStripMenuItem1.Visible = FileCheck.isExportableToStandard(e.Node.Text);

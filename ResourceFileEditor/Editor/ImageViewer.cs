@@ -55,13 +55,11 @@ namespace ResourceFileEditor.Editor
             pictureBox.BackgroundImage = generateBackgound();
             if (relativePath.EndsWith("bimage"))
             {
-                //TODO
-                ImageManager imageManager = new ImageManager();
-                pictureBox.Image = imageManager.LoadImage(file);
+                pictureBox.Image = loadBitmap(ImageManager.LoadImage(file));
             }
             else
             {
-                pictureBox.Image = this.loadBitmap(file);
+                pictureBox.Image = loadBitmap(file);
             }
             pictureBox.ParentChanged += new EventHandler(disposeImage);
             panel.Controls.Add(pictureBox);
@@ -78,7 +76,7 @@ namespace ResourceFileEditor.Editor
             }
         }
 
-        private Bitmap loadBitmap(Stream file)
+        public static Bitmap loadBitmap(Stream file)
         {
             ImageResult imageResult = ImageResult.FromStream(file, ColorComponents.RedGreenBlueAlpha);
             byte[] data = imageResult.Data;

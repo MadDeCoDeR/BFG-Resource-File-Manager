@@ -24,8 +24,11 @@ along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.o
 using ResourceFileEditor.Manager.Audio;
 using ResourceFileEditor.TableOfContent;
 using ResourceFileEditor.utils;
+using StbImageSharp;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 
@@ -219,7 +222,6 @@ namespace ResourceFileEditor.Manager
         public void ExportEntry(string relativePath, string outputFolder)
         {
             TableOfContentEntry content = FindContentByPath(relativePath);
-            Stream exportedFile = null;
             if (content != null)
             {
                 string outputPath = outputFolder + "/" + relativePath.Substring(relativePath.LastIndexOf("/") + 1);
@@ -228,6 +230,9 @@ namespace ResourceFileEditor.Manager
                 {
                     case "idwav":
                         outputPath = outputPath.Replace("idwav", "wav");
+                        break;
+                    case "bimage":
+                        outputPath = outputPath.Replace("bimage", "tga");
                         break;
                 }
                 FileStream file = new FileStream(outputPath, FileMode.OpenOrCreate);
@@ -243,16 +248,28 @@ namespace ResourceFileEditor.Manager
                     file.Write(buffer, 0, buffer.Length);
                     resourceStream.Close();
                 }
-                switch(fileExtension)
+                Stream exportedFile = new MemoryStream();
+                switch (fileExtension)
                 {
                     case "idwav":
                         exportedFile = AudioManager.LoadFile(file);
                         file.Position = 0;
                         exportedFile.CopyTo(file);
-                        exportedFile.Close();
+                        
+                        break;
+                    case "bimage":
+                        exportedFile = Image.ImageManager.LoadImage(file);
+                        //Second Pass in order to make a valid tga
+                        ImageResult imageResult = ImageResult.FromStream(exportedFile, ColorComponents.RedGreenBlueAlpha);
+                        byte[] data = imageResult.Data;
+                        file.Position = 0;
+                        StbImageWriteSharp.ImageWriter writer = new StbImageWriteSharp.ImageWriter();
+                        writer.WriteTga(data, imageResult.Width, imageResult.Height, StbImageWriteSharp.ColorComponents.RedGreenBlueAlpha, file);
                         break;
                 }
+                exportedFile.Close();
                 file.Close();
+
             }
         }
 

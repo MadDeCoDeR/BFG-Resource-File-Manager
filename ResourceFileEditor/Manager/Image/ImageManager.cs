@@ -13,17 +13,17 @@ namespace ResourceFileEditor.Manager.Image
     class ImageManager
     {
 
-        private static readonly UInt32 FILE_MAGIC = (('B' << 0) | ('I' << 8) | ('M' << 16) | (10 << 24));
-        public Bitmap LoadImage(Stream file)
+        private static readonly UInt32 IMAGE_FILE_MAGIC = (('B' << 0) | ('I' << 8) | ('M' << 16) | (10 << 24));
+        public static Stream LoadImage(Stream file)
         {
-            Bitmap img = null;
+            Stream img = null;
 
             int index = 0;
             DateTime  timestamp = DateTime.FromBinary((long)FileManager.FileManager.readUint64Swapped(file, index));
             index += 8;
             UInt32 magic = FileManager.FileManager.readUint32Swapped(file, index);
             index += 4;
-            if (magic == FILE_MAGIC)
+            if (magic == IMAGE_FILE_MAGIC)
             {
                 UInt32 texType = FileManager.FileManager.readUint32Swapped(file, index);
                 index += 4;
@@ -37,7 +37,7 @@ namespace ResourceFileEditor.Manager.Image
                 index += 4;
                 UInt32 numLevels = FileManager.FileManager.readUint32Swapped(file, index);
                 index += 4;
-                if (texType == 2)
+                if (texType == (UInt32)TextureType.TT_CUBIC)
                 {
                     numLevels *= 6;
                 }
@@ -59,42 +59,72 @@ namespace ResourceFileEditor.Manager.Image
                     images[i].data = FileManager.FileManager.readByteArray(file, index, (int)images[i].dataSize);
                     index += (int)images[i].dataSize;
                 }
+                //TODO Multilevel Textures
                 img = CovertToBitmap(images[0], texType, format, colorFormat);
             }
 
             return img;
         }
 
-        private Bitmap CovertToBitmap(ImageData image, UInt32 texType, UInt32 format, UInt32 colorFormat)
+        private static Stream CovertToBitmap(ImageData image, UInt32 texType, UInt32 format, UInt32 colorFormat)
         {
             byte[] data = image.data;
-            if (texType == 1 && format == 8 && colorFormat == 1)
+            Stream imageStream = new MemoryStream();
+            if (format != (UInt32)TextureFormat.FMT_RGBA8 && format != (UInt32)TextureFormat.FMT_RGB565)
             {
-
+                BCnEncoder.Decoder.BcDecoder decoder = new BCnEncoder.Decoder.BcDecoder();
+                BCnEncoder.Shared.CompressionFormat compressionFormat = BCnEncoder.Shared.CompressionFormat.BC1WithAlpha;
+                switch ((TextureFormat)format)
+                {
+                    case TextureFormat.FMT_DXT5:
+                        compressionFormat = BCnEncoder.Shared.CompressionFormat.BC3;
+                        break;
+                    case TextureFormat.FMT_DXT1:
+                        compressionFormat = BCnEncoder.Shared.CompressionFormat.BC1;
+                        break;
+                    case TextureFormat.FMT_ALPHA:
+                    case TextureFormat.FMT_LUM8:
+                        compressionFormat = BCnEncoder.Shared.CompressionFormat.BC4;
+                        break;
+                }
+                data = decoder.DecodeRawData(image.data, (int)image.width, (int)image.height, compressionFormat);
             }
-            /*// Convert rgba to bgra
-            for (int i = 0; i < (int)image.width * (int)image.height; ++i)
+            else if (format == (UInt32)TextureFormat.FMT_RGB565)
             {
-                byte r = data[i * 4];
-                byte g = data[i * 4 + 1];
-                byte b = data[i * 4 + 2];
-                byte a = data[i * 4 + 3];
+                Stream parsedImageBuffer = new MemoryStream();
+                UInt16 red_mask = 0xF800;
+                UInt16 green_mask = 0x7E0;
+                UInt16 blue_mask = 0x1F;
+                Stream imageBuffer = new MemoryStream(data);
+                int index = 0;
+                while(index < imageBuffer.Length)
+                {
+                    byte[] pixelBuffer = new byte[2];
+                    imageBuffer.Read(pixelBuffer, 0, 2);
+                    index += 2;
+                    UInt16 pixel = BitConverter.ToUInt16(pixelBuffer, 0);
+                    byte red = (byte)((pixel & red_mask) >> 11);
+                    byte green = (byte)((pixel & green_mask) >> 5);
+                    byte blue = (byte)(pixel & blue_mask);
+                    //This might not be right
+                    red = (byte)(red << 3);
+                    green = (byte)(green << 2);
+                    blue = (byte)(blue << 3);
+                    byte[] parsedPixel = new byte[4];
+                    parsedPixel[0] = red;
+                    parsedPixel[1] = green;
+                    parsedPixel[2] = blue;
+                    parsedPixel[3] = 255;
+                    parsedImageBuffer.Write(parsedPixel, 0, 4);
+                }
+                parsedImageBuffer.Position = 0;
+                data = new byte[parsedImageBuffer.Length];
+                parsedImageBuffer.Read(data, 0, (int)parsedImageBuffer.Length);
+            }
 
-
-                data[i * 4] = b;
-                data[i * 4 + 1] = g;
-                data[i * 4 + 2] = r;
-                data[i * 4 + 3] = a;
-            }*/
-
-            // Create Bitmap
-            Bitmap bmp = new Bitmap((int)image.width, (int)image.height, PixelFormat.Format32bppArgb);
-            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, (int)image.width, (int)image.height), ImageLockMode.WriteOnly,
-                bmp.PixelFormat);
-
-            Marshal.Copy(data, 0, bmpData.Scan0, (int)image.dataSize);
-            bmp.UnlockBits(bmpData);
-            return bmp;
+            StbImageWriteSharp.ImageWriter imageWriter = new StbImageWriteSharp.ImageWriter();
+            imageWriter.WriteTga(data, (int)image.width, (int)image.height, StbImageWriteSharp.ColorComponents.RedGreenBlueAlpha, imageStream);
+            return imageStream;
         }
     }
 }

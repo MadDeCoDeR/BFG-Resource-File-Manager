@@ -50,31 +50,36 @@ namespace ResourceFileEditor
             saveFileToolStripMenuItem.Enabled = hasNodes;
             entryToolStripMenuItem.Enabled = hasNodes;
             editorFactory = new EditorFactory(manager);
+        }
 
+        public void openFile(Stream file)
+        {
+            Stream myStream;
+            if ((myStream = file) != null)
+            {
+                treeView1.Nodes.Clear();
+                treeView1.Nodes.Add(new TreeNode("root"));
+                manager.CloseFile();
+                manager.loadFile(myStream);
+
+                treeView1.SelectedNode = treeView1.Nodes[0];
+                treeView1.Nodes[0].Expand();
+                Boolean hasNodes = treeView1.Nodes.Count > 0;
+                saveFileToolStripMenuItem.Enabled = hasNodes;
+                entryToolStripMenuItem.Enabled = hasNodes;
+            }
         }
 
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Stream myStream;
+            
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "DOOM 3 BFG Edition resource files (*.resources)|*.resources";
             ofd.Title = "Load File";
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                if ((myStream = ofd.OpenFile()) != null)
-                {
-                    treeView1.Nodes.Clear();
-                    treeView1.Nodes.Add(new TreeNode("root"));
-                    manager.CloseFile();
-                    manager.loadFile(myStream);
-
-                    treeView1.SelectedNode = treeView1.Nodes[0];
-                    treeView1.Nodes[0].Expand();
-                    Boolean hasNodes = treeView1.Nodes.Count > 0;
-                    saveFileToolStripMenuItem.Enabled = hasNodes;
-                    entryToolStripMenuItem.Enabled = hasNodes;
-                }
+                this.openFile(ofd.OpenFile());
             }
         }
 

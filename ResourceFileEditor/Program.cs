@@ -23,6 +23,7 @@ along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.o
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -35,11 +36,20 @@ namespace ResourceFileEditor
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ManagerUi());
+            ManagerUi mui = new ManagerUi();
+            if (args.Length > 0)
+            {
+                using (FileStream fs = new FileStream(args[0], FileMode.Open))
+                {
+                    mui.openFile(fs);
+                }
+            }
+            Application.Run(mui);
+            
         }
     }
 }

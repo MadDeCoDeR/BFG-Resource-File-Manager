@@ -29,7 +29,7 @@ Linux:
 nuget Depedencies Licenses
 ==========================
 
-StbImageSharp - Public Domain
-StbImageWriteSharp - Public Domain
-BCnEncoder.Net45 - MIT or Unlicensed
-System.Numerics.Vector - MIT
+- StbImageSharp - Public Domain
+- StbImageWriteSharp - Public Domain
+- BCnEncoder.Net45 - MIT or Unlicensed
+- System.Numerics.Vector - MIT

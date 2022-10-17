@@ -166,6 +166,11 @@ namespace ResourceFileEditor.Manager
 
         public void AddFile(Stream file, string relativePath)
         {
+            TableOfContentEntry oldToc = FindContentByPath(relativePath);
+            if (oldToc != null)
+            {
+                this.DeleteEntry(relativePath);
+            }
             TableOfContentEntry toc = new TableOfContentEntry();
             toc.Filename = relativePath;
             toc.fileSize = (uint)((FileStream)file).Length;
@@ -343,7 +348,7 @@ namespace ResourceFileEditor.Manager
             {
                 if (content.file != null)
                 {
-                    return content.file;
+                    return new MemoryStream(FileManager.FileManager.readByteArray(content.file, (int)0, (int)content.fileSize));
                 } else
                 {
                     Stream resourceStream = File.OpenRead(resourceFile);

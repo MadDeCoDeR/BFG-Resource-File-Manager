@@ -202,6 +202,19 @@ namespace ResourceFileEditor.Manager
             }
         }
 
+        public void ExtractFolder(string relativePath, string outputFolder)
+        {
+            List<string> children = GetFilesFromPath(relativePath);
+            if (children.Count > 0)
+            {
+                children.ForEach((string child) => {
+                    string outputPath = outputFolder + "/" + child.Substring(0, child.LastIndexOf("/"));
+                    Directory.CreateDirectory(outputPath);
+                    ExtractEntry(child, outputPath);
+                    });
+            }
+        }
+
         public void ExtractEntry(string relativePath, string outputFolder)
         {
             TableOfContentEntry content = FindContentByPath(relativePath);
@@ -294,6 +307,18 @@ namespace ResourceFileEditor.Manager
                 }
             }
             return null;
+        }
+        private List<string> GetFilesFromPath(string relativePath)
+        {
+            List<string> innerEntries = new List<string>();
+            for (int i = 0; i < contents.Count; i++)
+            {
+                if (contents[i].Filename.StartsWith(relativePath))
+                {
+                    innerEntries.Add(contents[i].Filename);
+                }
+            }
+            return innerEntries;
         }
 
         public long GetResourceFileSize()

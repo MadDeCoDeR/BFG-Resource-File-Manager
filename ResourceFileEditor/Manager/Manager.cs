@@ -39,6 +39,8 @@ namespace ResourceFileEditor.Manager
 
         void DeleteEntry(string relativePath);
 
+        void ExtractFolder(string relativePath, string outputFolder);
+
         void ExtractEntry(string relativePath, string outputFolder);
 
         Stream loadEntry(string relativePath);

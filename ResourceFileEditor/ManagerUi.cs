@@ -158,7 +158,8 @@ namespace ResourceFileEditor
                 addFolderContextMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
                 deleteEntryContextMenuItem.Visible = true;
                 deleteEntryContextMenuItem.Text = FileCheck.isFile(e.Node.Text) ? "Delete Entry" : "Delete Folder";
-                extractEntryContextMenuItem.Visible = FileCheck.isFile(e.Node.Text);
+                extractEntryContextMenuItem.Visible = true;
+                extractEntryContextMenuItem.Text = FileCheck.isFile(e.Node.Text) ? "Extract Entry" : "Extract Folder";
                 exportToStandardFormatToolStripMenuItem.Visible = FileCheck.isExportableToStandard(e.Node.Text);
                 addContextMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
                 contextMenuStrip1.Show(treeView1, e.Location);
@@ -250,7 +251,13 @@ namespace ResourceFileEditor
 
             if (fbd.SelectedPath != null)
             {
-                manager.ExtractEntry(relativePath, fbd.SelectedPath);
+                if (FileCheck.isFile(relativePath))
+                {
+                    manager.ExtractEntry(relativePath, fbd.SelectedPath);
+                } else
+                {
+                    manager.ExtractFolder(relativePath, fbd.SelectedPath);
+                }
             }
         }
 
@@ -273,7 +280,8 @@ namespace ResourceFileEditor
             addFolderToolStripMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
             deleteEntryToolStripMenuItem.Visible = true;
             deleteEntryToolStripMenuItem.Text = FileCheck.isFile(e.Node.Text) ? "Delete Entry" : "Delete Folder";
-            extractEntryToolStripMenuItem.Visible = FileCheck.isFile(e.Node.Text);
+            extractEntryToolStripMenuItem.Visible = true;
+            extractEntryToolStripMenuItem.Text = FileCheck.isFile(e.Node.Text) ? "Extract Entry" : "Extract Folder";
             addToolStripMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
             exportToStandardFormatToolStripMenuItem1.Visible = FileCheck.isExportableToStandard(e.Node.Text);
             splitContainer1.Panel2.Controls.Clear();

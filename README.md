@@ -13,7 +13,7 @@ Build it yourself (BIY)
 =======================
 
 Windows:
-- Install Microsoft Visual Studio (2017 or later) Community (hich is free to download and Install)
+- Install Microsoft Visual Studio (2017 or later) Community (is free to download and Install)
 - Open the ResourceFileEditor.sln
 - Select the desired configuration (Debug or Release)
 - right click the ResourceFileEditor Project and select build

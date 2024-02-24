@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ResourceFileEditor.Manager
@@ -53,7 +54,7 @@ namespace ResourceFileEditor.Manager
         }
         public void loadFile(Stream file)
         {
-            using(file)
+            using (file)
             {
                 try
                 {
@@ -69,7 +70,7 @@ namespace ResourceFileEditor.Manager
                         for (int i = 0; i < contents.Count; i++)
                         {
                             NodeUtils.addNode(managerUI.GetTreeView().Nodes[0].Nodes, PathParser.parsePath(contents[i].Filename));
-                           // form1.GetTreeView().Nodes.Add(PathParser.parsePath(tocs[i].Filename));
+                            // form1.GetTreeView().Nodes.Add(PathParser.parsePath(tocs[i].Filename));
                             Console.WriteLine(contents[i].Filename);
                         }
                         resourceFile = ((FileStream)file).Name;
@@ -82,7 +83,7 @@ namespace ResourceFileEditor.Manager
                     Console.WriteLine(ex.StackTrace);
                 }
             }
-            
+
         }
 
         public void writeFile(Stream file)
@@ -95,7 +96,8 @@ namespace ResourceFileEditor.Manager
                     if (((FileStream)file).Name == resourceFile)
                     {
                         tempres = resourceFile + ".bak";
-                    } else
+                    }
+                    else
                     {
                         tempres = resourceFile;
                     }
@@ -105,7 +107,7 @@ namespace ResourceFileEditor.Manager
                     UInt32 dataOffset = 0;
                     for (int i = 0; i < contents.Count; i++)
                     {
-                       
+
                         byte[] buffer;
                         if (contents[i].file == null)
                         {
@@ -207,11 +209,19 @@ namespace ResourceFileEditor.Manager
             List<string> children = GetFilesFromPath(relativePath);
             if (children.Count > 0)
             {
-                children.ForEach((string child) => {
-                    string outputPath = outputFolder + "/" + child.Substring(0, child.LastIndexOf("/"));
-                    Directory.CreateDirectory(outputPath);
-                    ExtractEntry(child, outputPath);
-                    });
+                foreach (string child in children)
+                {
+                    if (child.Contains("/"))
+                    {
+                        string outputPath = Path.Combine(outputFolder, child.Substring(0, child.LastIndexOf("/")));
+                        Directory.CreateDirectory(outputPath);
+                        ExtractEntry(child, outputPath);
+                    }
+                    else
+                    {
+                        ExtractEntry(child, outputFolder);
+                    }
+                }
             }
         }
 
@@ -273,7 +283,7 @@ namespace ResourceFileEditor.Manager
                         exportedFile = AudioManager.LoadFile(file);
                         file.Position = 0;
                         exportedFile.CopyTo(file);
-                        
+
                         break;
                     case "bimage":
                         exportedFile = Image.ImageManager.LoadImage(file);
@@ -363,7 +373,7 @@ namespace ResourceFileEditor.Manager
             managerUI.UpdateTitle(null, isDirty);
             resourceFile = null;
             contents = null;
-            closeAfterSave = false;   
+            closeAfterSave = false;
         }
 
         public Stream loadEntry(string relativePath)
@@ -374,7 +384,8 @@ namespace ResourceFileEditor.Manager
                 if (content.file != null)
                 {
                     return new MemoryStream(FileManager.FileManager.readByteArray(content.file, (int)0, (int)content.fileSize));
-                } else
+                }
+                else
                 {
                     Stream resourceStream = File.OpenRead(resourceFile);
                     byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);

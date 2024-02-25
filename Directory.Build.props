@@ -1,0 +1,72 @@
+<Project>
+
+	<PropertyGroup Label="DateData">
+		<CurrentYear>$([System.DateTime]::UtcNow.Year)</CurrentYear>
+		<CurrentMonth>$([System.DateTime]::UtcNow.Month)</CurrentMonth>
+		<CurrentDay>$([System.DateTime]::UtcNow.Day)</CurrentDay>
+	</PropertyGroup>
+
+	<!-- Currently only major and minor are indented to be set able.  -->
+	<PropertyGroup Label="VersionData">
+		<VersionMajor>1</VersionMajor>
+		<VersionMinor>0</VersionMinor>
+		<VersionPatch>$(CurrentMonth)$(CurrentDay)</VersionPatch>
+		<VersionRevision>$([System.DateTime]::UtcNow.TimeOfDay.TotalMinutes.ToString("0"))</VersionRevision>
+		<VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionPatch).$(VersionRevision)</VersionPrefix>
+		<VersionSuffix Condition="$(Configuration.Equals('Debug'))">Development</VersionSuffix>
+	</PropertyGroup>
+
+	<PropertyGroup Label="TechnicalData">
+		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<AnalysisMode>recommended</AnalysisMode>
+		<AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+		<DebugType>full</DebugType>
+		<Deterministic>true</Deterministic>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<EnablePackageValidation>true</EnablePackageValidation>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<GeneratedAssemblyInfoFile>Properties\AssemblyInfo.cs</GeneratedAssemblyInfoFile>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<TargetFrameworks>net48</TargetFrameworks>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Label="MetaData"	Condition="!$(MSBuildProjectName.EndsWith('Tests'))">
+		<Author>MadDeCoDeR</Author>
+		<Authors>$(Author)</Authors>
+		<Company>https://github.com/$(Author)</Company>
+		<Copyright>Copyright © $(CurrentYear) $(Author)</Copyright>
+		<Description>This is a file manager for DOOM 3 BFG Edition/DOOM 3 (2019) .resources files. It allows you to see, extract, delete, preview and edit the files inside .resources files. Also it allows you to create and edit .resource files.</Description>
+		<Product>BFG Resource File Manager</Product>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/MadDeCoDeR/BFG-Resource-File-Manager</RepositoryUrl>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<Title>$(AssemblyName)</Title>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
+		<Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+		<Using Include="System.Diagnostics" />
+		<Using Include="System.Diagnostics.CodeAnalysis" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Properties\" />
+	</ItemGroup>
+
+</Project>

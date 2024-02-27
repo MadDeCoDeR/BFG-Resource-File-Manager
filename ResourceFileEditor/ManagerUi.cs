@@ -178,7 +178,6 @@ namespace ResourceFileEditor
 
             if (dialogResult != DialogResult.OK || string.IsNullOrWhiteSpace(name))
                 return;
-
             TreeNode node = treeView1.SelectedNode;
             if (node == null)
             {
@@ -470,7 +469,7 @@ namespace ResourceFileEditor
             Form form = new Form
             {
                 Text = title,
-                ClientSize = new Size(796, 307),
+                ClientSize = new Size(380, 120),
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 StartPosition = FormStartPosition.CenterScreen,
                 MinimizeBox = false,
@@ -481,22 +480,22 @@ namespace ResourceFileEditor
                 AutoSize = true,
                 Text = promptText
             };
-            label.SetBounds(36, 36, 372, 13);
+            label.SetBounds(36, 36, 150, 13);
             TextBox textBox = new TextBox();
-            textBox.SetBounds(36, 86, 700, 20);
+            textBox.SetBounds(36, 50, 300, 20);
             Button buttonOk = new Button
             {
                 Text = "OK",
                 DialogResult = DialogResult.OK
             };
-            buttonOk.SetBounds(228, 160, 160, 60);
+            buttonOk.SetBounds(36, 74, 60, 30);
             Button buttonCancel = new Button
             {
                 Text = "Cancel",
                 DialogResult = DialogResult.Cancel
             };
-            buttonCancel.SetBounds(400, 160, 160, 60);
-            
+            buttonCancel.SetBounds(105, 74, 60, 30);
+
             form.Controls.AddRange(new Control[] { label, textBox, buttonOk, buttonCancel });
             form.AcceptButton = buttonOk;
             form.CancelButton = buttonCancel;

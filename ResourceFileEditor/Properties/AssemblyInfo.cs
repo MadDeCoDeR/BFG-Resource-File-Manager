@@ -18,7 +18,7 @@ using System.Reflection;
     "allows you to see, extract, delete, preview and edit the files inside .resources" +
     " files. Also it allows you to create and edit .resource files.")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.5")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.51.1183+04724dd33d6f9c88b5809e1578e5606f595395f3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.51.1187+ddb15acec580cb928e77643e2d39bb0ad328ccd0")]
 [assembly: System.Reflection.AssemblyProductAttribute("BFG Resource File Manager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ResourceFileEditor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.5")]

@@ -27,6 +27,8 @@ using ResourceFileEditor.utils;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ResourceFileEditor
@@ -38,6 +40,9 @@ namespace ResourceFileEditor
 
         private readonly double warningPercent = (((double)1 * 1024 * 1024 * 1024) / UInt32.MaxValue) * 100;
         private readonly EditorFactory editorFactory;
+
+        public Label extractProgressLabel;
+        public ProgressBar extractProgressBar;
         public ManagerUi()
         {
             InitializeComponent();
@@ -234,10 +239,10 @@ namespace ResourceFileEditor
 
         private void extractEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ExtractEntry_logic();
+            ExtractEntry_logicAsync();
         }
 
-        private void ExtractEntry_logic()
+        private async Task ExtractEntry_logicAsync()
         {
             TreeNode node = treeView1.SelectedNode;
             if (node == null)
@@ -251,13 +256,16 @@ namespace ResourceFileEditor
 
             if (fbd.SelectedPath != null)
             {
+                
                 if (FileCheck.isFile(relativePath))
                 {
-                    manager.ExtractEntry(relativePath, fbd.SelectedPath);
+                    await Task.Run(() => manager.ExtractEntry(relativePath, fbd.SelectedPath));
                 } else
                 {
-                    manager.ExtractFolder(relativePath, fbd.SelectedPath);
+                    await Task.Run(() => manager.ExtractFolder(relativePath, fbd.SelectedPath));
+                    this.ShowProgressBar("Extracting Files");
                 }
+                
             }
         }
 
@@ -435,12 +443,12 @@ namespace ResourceFileEditor
             updateToolStripBar(toolStripStatusLabel1.Text);
         }
 
-        private void exportToStandardFormatToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void exportToStandardFormatToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            exportToStandard_logic();
+            await exportToStandard_logic();
         }
 
-        private void exportToStandard_logic()
+        private async Task exportToStandard_logic()
         {
             TreeNode node = treeView1.SelectedNode;
             if (node == null)
@@ -454,14 +462,24 @@ namespace ResourceFileEditor
 
             if (fbd.SelectedPath != null)
             {
-                manager.ExportEntry(relativePath, fbd.SelectedPath);
+                
+                
+                if (FileCheck.isFile(relativePath))
+                {
+                    Task.Run(() => manager.ExportEntry(relativePath, fbd.SelectedPath));
+                } else
+                {
+                    Task.Run(() => manager.ExtractAndExportFolder(relativePath, fbd.SelectedPath));
+                    this.ShowProgressBar("Exporting Files");
+                }
+                
             }
 
         }
 
-        private void exportToStandardFormatToolStripMenuItem1_Click(object sender, EventArgs e)
+        private async void exportToStandardFormatToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            exportToStandard_logic();
+            await exportToStandard_logic();
         }
 
         private static DialogResult InputBox(string title, string promptText, ref string value)
@@ -503,6 +521,40 @@ namespace ResourceFileEditor
             DialogResult dialogResult = form.ShowDialog();
             value = textBox.Text;
             return dialogResult;
+        }
+
+        private void CloseProgressForm(object sender, EventArgs e)
+        {
+            this.extractProgressBar = null;
+            this.extractProgressLabel = null;
+        }
+
+        private void ShowProgressBar(string title)
+        {
+            Form form = new Form
+            {
+                Text = title,
+                ClientSize = new Size(380, 120),
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition = FormStartPosition.CenterScreen,
+                MinimizeBox = false,
+                MaximizeBox = false
+            };
+            this.extractProgressLabel = new Label
+            {
+                AutoSize = true
+            };
+            extractProgressLabel.SetBounds(36, 36, 150, 13);
+            this.extractProgressBar = new ProgressBar();
+            extractProgressBar.SetBounds(36, 50, 300, 20);
+
+            form.Controls.AddRange([extractProgressLabel, extractProgressBar]);
+
+            form.FormClosed += CloseProgressForm;
+
+            form.ShowDialog();
+
+
         }
     }
 

@@ -22,6 +22,7 @@ along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.o
 ===========================================================================
 */
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ResourceFileEditor.Manager
 {
@@ -39,9 +40,13 @@ namespace ResourceFileEditor.Manager
 
         void DeleteEntry(string relativePath);
 
-        void ExtractFolder(string relativePath, string outputFolder);
+        Task ExtractFolder(string relativePath, string outputFolder);
 
-        void ExtractEntry(string relativePath, string outputFolder);
+        Task ExtractEntry(string relativePath, string outputFolder);
+
+        Task ExtractAndExportFolder(string relativePath, string outputFolder);
+
+        Task ExportEntry(string relativePath, string outputFolder);
 
         Stream loadEntry(string relativePath);
 

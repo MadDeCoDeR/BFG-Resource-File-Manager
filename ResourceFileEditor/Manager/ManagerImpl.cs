@@ -31,6 +31,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ResourceFileEditor.Manager
@@ -204,28 +206,44 @@ namespace ResourceFileEditor.Manager
             }
         }
 
-        public void ExtractFolder(string relativePath, string outputFolder)
+        public async Task ExtractFolder(string relativePath, string outputFolder)
         {
+            while (managerUI.extractProgressBar == null || !managerUI.extractProgressBar.IsHandleCreated)
+            {
+                Thread.Sleep(5);
+            }
             List<string> children = GetFilesFromPath(relativePath);
             if (children.Count > 0)
             {
+                while (managerUI.extractProgressBar == null || !managerUI.extractProgressBar.IsHandleCreated)
+                {
+                    Thread.Sleep(5);
+                }
+                managerUI.extractProgressBar.Invoke(new Action(() => managerUI.extractProgressBar.Maximum = children.Count));
                 foreach (string child in children)
                 {
                     if (child.Contains("/"))
                     {
                         string outputPath = Path.Combine(outputFolder, child.Substring(0, child.LastIndexOf("/")));
                         Directory.CreateDirectory(outputPath);
+                        managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
                         ExtractEntry(child, outputPath);
                     }
                     else
                     {
+                        managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
                         ExtractEntry(child, outputFolder);
                     }
+                    if (managerUI.extractProgressBar == null)
+                        break;
+                    managerUI.extractProgressBar.Invoke(new Action(() => managerUI.extractProgressBar.Increment(1)));
                 }
+
+                managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = "Completed"));
             }
         }
 
-        public void ExtractEntry(string relativePath, string outputFolder)
+        public async Task ExtractEntry(string relativePath, string outputFolder)
         {
             TableOfContentEntry content = FindContentByPath(relativePath);
             if (content != null)
@@ -247,7 +265,40 @@ namespace ResourceFileEditor.Manager
             }
         }
 
-        public void ExportEntry(string relativePath, string outputFolder)
+        public async Task ExtractAndExportFolder(string relativePath, string outputFolder)
+        {
+            while (managerUI.extractProgressBar == null || !managerUI.extractProgressBar.IsHandleCreated)
+            {
+                Thread.Sleep(5);
+            }
+            List<string> children = GetFilesFromPath(relativePath);
+            if (children.Count > 0)
+            {
+                managerUI.extractProgressBar.Invoke(new Action(() => managerUI.extractProgressBar.Maximum = children.Count));
+                foreach (string child in children)
+                {
+                    if (child.Contains("/"))
+                    {
+                        string outputPath = Path.Combine(outputFolder, child.Substring(0, child.LastIndexOf("/")));
+                        Directory.CreateDirectory(outputPath);
+                        managerUI.extractProgressLabel.Invoke(new Action(() =>managerUI.extractProgressLabel.Text = child));
+                        ExportEntry(child, outputPath);
+                    }
+                    else
+                    {
+                        managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
+                        ExportEntry(child, outputFolder);
+                    }
+                    if (managerUI.extractProgressBar == null)
+                        break;
+                    managerUI.extractProgressBar.Invoke(new Action(() => managerUI.extractProgressBar.Increment(1)));
+                }
+
+                managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = "Completed"));
+            }
+        }
+
+        public async Task ExportEntry(string relativePath, string outputFolder)
         {
             TableOfContentEntry content = FindContentByPath(relativePath);
             if (content != null)
@@ -293,6 +344,11 @@ namespace ResourceFileEditor.Manager
                         file.Position = 0;
                         StbImageWriteSharp.ImageWriter writer = new StbImageWriteSharp.ImageWriter();
                         writer.WriteTga(data, imageResult.Width, imageResult.Height, StbImageWriteSharp.ColorComponents.RedGreenBlueAlpha, file);
+                        break;
+                    default:
+                        Stream resourceStream = File.OpenRead(resourceFile);
+                        byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
+                        file.Write(buffer, 0, buffer.Length);
                         break;
                 }
                 exportedFile.Close();

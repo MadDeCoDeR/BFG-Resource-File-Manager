@@ -40,7 +40,7 @@ namespace ResourceFileEditor.utils
 
         public static Boolean isExportableToStandard(string name)
         {
-            return name.EndsWith("idwav") || name.EndsWith("bimage");
+            return !name.Contains(".") || name.EndsWith("idwav") || name.EndsWith("bimage");
         }
 
         public static FileTypes getFileType(Stream file, string filename)

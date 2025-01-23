@@ -52,6 +52,11 @@ namespace ResourceFileEditor.Editor
             textBox.Dock = DockStyle.Fill;
             textBox.ReadOnly = false;
             textBox.Name = relativePath;
+            textBox.AcceptsReturn = true;
+            textBox.AcceptsTab = true;
+            textBox.Capture = true;
+            textBox.ImeMode = ImeMode.On;
+            textBox.MaxLength = Int32.MaxValue;
             textBox.ParentChanged += new EventHandler(clearText);
             textBox.TextChanged += editTextHandler;
             panel.Controls.Add(textBox);

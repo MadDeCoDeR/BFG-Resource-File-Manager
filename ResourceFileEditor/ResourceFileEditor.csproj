@@ -1,21 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-	<PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-		<ImplicitUsings>disable</ImplicitUsings>
-		<Nullable>disable</Nullable>
-		<OutputType>WinExe</OutputType>
-		<UseWindowsForms>true</UseWindowsForms>
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<AssemblyVersion>1.0.5</AssemblyVersion>
-		<FileVersion>1.0.5</FileVersion>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<DebugType>none</DebugType>
-	</PropertyGroup>
-	
-	<ItemGroup>
+  <PropertyGroup>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AssemblyVersion>1.0.5</AssemblyVersion>
+    <FileVersion>1.0.5</FileVersion>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
+    <UseWPF>True</UseWPF>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
     <Compile Update="ManagerUi.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -26,12 +24,11 @@
       <DependentUpon>ManagerUi.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-	
   <ItemGroup>
-    <PackageReference Include="BCnEncoder.Net45" Version="0.0.1" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.8" />
-    <PackageReference Include="StbImageSharp" Version="2.27.8" />
-    <PackageReference Include="StbImageWriteSharp" Version="1.13.5" />
+    <PackageReference Include="BCnEncoder.Net" />
+    <PackageReference Include="StbImageSharp" />
+    <PackageReference Include="StbImageWriteSharp" />
+    <PackageReference Include="System.Net.Http" />
+    <PackageReference Include="System.Text.RegularExpressions" />
   </ItemGroup>
-	
 </Project>

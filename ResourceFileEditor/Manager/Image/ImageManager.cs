@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BCnEncoder.Shared;
+using ResourceFileEditor.utils;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -73,21 +75,21 @@ namespace ResourceFileEditor.Manager.Image
             if (format != (UInt32)TextureFormat.FMT_RGBA8 && format != (UInt32)TextureFormat.FMT_RGB565)
             {
                 BCnEncoder.Decoder.BcDecoder decoder = new BCnEncoder.Decoder.BcDecoder();
-                BCnEncoder.Shared.CompressionFormat compressionFormat = BCnEncoder.Shared.CompressionFormat.BC1WithAlpha;
+                CompressionFormat compressionFormat = CompressionFormat.Bc1WithAlpha;
                 switch ((TextureFormat)format)
                 {
                     case TextureFormat.FMT_DXT5:
-                        compressionFormat = BCnEncoder.Shared.CompressionFormat.BC3;
+                        compressionFormat = CompressionFormat.Bc3;
                         break;
                     case TextureFormat.FMT_DXT1:
-                        compressionFormat = BCnEncoder.Shared.CompressionFormat.BC1;
+                        compressionFormat = CompressionFormat.Bc1;
                         break;
                     case TextureFormat.FMT_ALPHA:
                     case TextureFormat.FMT_LUM8:
-                        compressionFormat = BCnEncoder.Shared.CompressionFormat.BC4;
+                        compressionFormat = CompressionFormat.Bc4;
                         break;
                 }
-                data = decoder.DecodeRawData(image.data, (int)image.width, (int)image.height, compressionFormat);
+                data = decoder.DecodeRaw(image.data, (int)image.width, (int)image.height, compressionFormat).SelectMany(color => color.ToByteArray()).ToArray();
             }
             else if (format == (UInt32)TextureFormat.FMT_RGB565)
             {
@@ -95,7 +97,7 @@ namespace ResourceFileEditor.Manager.Image
                 UInt16 red_mask = 0xF800;
                 UInt16 green_mask = 0x7E0;
                 UInt16 blue_mask = 0x1F;
-                Stream imageBuffer = new MemoryStream(data);
+                Stream imageBuffer = new MemoryStream(image.data);
                 int index = 0;
                 while(index < imageBuffer.Length)
                 {
@@ -110,11 +112,7 @@ namespace ResourceFileEditor.Manager.Image
                     red = (byte)(red << 3);
                     green = (byte)(green << 2);
                     blue = (byte)(blue << 3);
-                    byte[] parsedPixel = new byte[4];
-                    parsedPixel[0] = red;
-                    parsedPixel[1] = green;
-                    parsedPixel[2] = blue;
-                    parsedPixel[3] = 255;
+                    byte[] parsedPixel = [red, green, blue, 255];
                     parsedImageBuffer.Write(parsedPixel, 0, 4);
                 }
                 parsedImageBuffer.Position = 0;

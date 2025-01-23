@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 
 namespace ResourceFileEditor.Manager.Image
 {
-    class ImageData
+    sealed class ImageData
     {
         public UInt32 level;
         public UInt32 destZ;
         public UInt32 width;
         public UInt32 height;
         public UInt32 dataSize;
-        public byte[] data;
+        public byte[]? data;
 
     }
 
-    public enum TextureType: UInt32
+    enum TextureType: UInt32
     {
         TT_DISABLED,
         TT_2D,
         TT_CUBIC
     }
 
-	public enum TextureFormat: UInt32
+	enum TextureFormat: UInt32
 	{
 		FMT_NONE,
 
@@ -74,7 +74,7 @@ namespace ResourceFileEditor.Manager.Image
 		FMT_RGB565,         // 16 bpp
 	}
 
-	public enum tTextureColor: UInt32
+	enum tTextureColor: UInt32
 	{
 		CFM_DEFAULT,            // RGBA
 		CFM_NORMAL_DXT5,        // XY format and use the fast DXT5 compressor

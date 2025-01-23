@@ -27,13 +27,13 @@ using System.IO;
 
 namespace ResourceFileEditor.FileManager
 {
-    class FileManager
+    sealed class FileManager
     {
         public static UInt16 readUint16(Stream stream, int pos)
         {
             byte[] buffer = new byte[2];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             return BitConverter.ToUInt16(buffer, 0);
         }
 
@@ -41,7 +41,7 @@ namespace ResourceFileEditor.FileManager
         {
             byte[] buffer = new byte[2];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             Array.Reverse(buffer);
             return BitConverter.ToUInt16(buffer, 0);
         }
@@ -50,7 +50,7 @@ namespace ResourceFileEditor.FileManager
         {
             byte[] buffer = new byte[4];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             return BitConverter.ToUInt32(buffer, 0);
         }
 
@@ -58,7 +58,7 @@ namespace ResourceFileEditor.FileManager
         {
             byte[] buffer = new byte[4];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             Array.Reverse(buffer);
             return BitConverter.ToUInt32(buffer, 0);
         }
@@ -67,7 +67,7 @@ namespace ResourceFileEditor.FileManager
         {
             byte[] buffer = new byte[4];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             return BitConverter.ToInt32(buffer, 0);
         }
 
@@ -75,7 +75,7 @@ namespace ResourceFileEditor.FileManager
         {
             byte[] buffer = new byte[4];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             Array.Reverse(buffer);
             return BitConverter.ToInt32(buffer, 0);
         }
@@ -84,7 +84,7 @@ namespace ResourceFileEditor.FileManager
         {
             byte[] buffer = new byte[4];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             return BitConverter.ToUInt64(buffer, 0);
         }
 
@@ -92,7 +92,7 @@ namespace ResourceFileEditor.FileManager
         {
             byte[] buffer = new byte[8];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             Array.Reverse(buffer);
             return BitConverter.ToUInt64(buffer, 0);
         }
@@ -101,7 +101,7 @@ namespace ResourceFileEditor.FileManager
         {
             byte[] buffer = new byte[size];
             stream.Position = pos;
-            stream.Read(buffer, 0, buffer.Length);
+            int _ = stream.Read(buffer, 0, buffer.Length);
             return buffer;
         }
 

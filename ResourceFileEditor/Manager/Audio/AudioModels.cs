@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace ResourceFileEditor.Manager.Audio
 {
-	class WaveFormat
+    sealed class WaveFormat
 	{
 		public static readonly string id = "fmt ";
-		// This is the basic data we'd expect to see in any valid wave file
-		public class Basic
+        // This is the basic data we'd expect to see in any valid wave file
+        public sealed class Basic
 		{
 			public UInt16 formatTag { get; set; }
 			public UInt16 numChannels { get; set; }
@@ -50,49 +50,49 @@ namespace ResourceFileEditor.Manager.Audio
 				return basic;
             }
 		}
-		public Basic basic { get; set; }
+		public Basic? basic { get; set; }
 		// Some wav file formats have extra data after the basic header
 		public UInt16 extraSize { get; set; }
-		// We have a few known formats that we handle:
-		public class Extra
+        // We have a few known formats that we handle:
+        public sealed class Extra
 		{
 			// Valid if basic.formatTag == FORMAT_EXTENSIBLE
-			public class Extensible
+			public sealed class Extensible
 			{
 				public UInt16 validBitsPerSample { get; set; }  // Valid bits in each sample container
 				public UInt32 channelMask { get; set; }         // Positions of the audio channels
-				public class Guid
+				public sealed class Guid
 				{
 					public UInt32 data1 { get; set; }
 					public UInt16 data2 { get; set; }
 					public UInt16 data3 { get; set; }
 					public UInt16 data4 { get; set; }
-					public byte[] data5 { get; set; } //size 6
+					public byte[]? data5 { get; set; } //size 6
 
 					public static readonly int classSize = 16;
 				}           // Format identifier GUID
-				public Guid guid { get; set; }
+				public Guid? guid { get; set; }
 
 				public static readonly int classSize = 6 + Guid.classSize;
 			}
-			public Extensible extensible { get; set; }
+			public Extensible? extensible { get; set; }
 			// Valid if basic.formatTag == FORMAT_ADPCM
 			// The microsoft ADPCM struct has a zero-sized array at the end
 			// but the array is always 7 entries, so we set it to that size
 			// so we can embed it in our format union.  Otherwise, the struct
 			// is exactly the same as the one in audiodefs.h
-			public class Adpcm
+			public sealed class Adpcm
 			{
 				public UInt16 samplesPerBlock { get; set; }
 				public UInt16 numCoef { get; set; }
-				public class Adpcmcoef
+				public sealed class Adpcmcoef
 				{
 					public short coef1 { get; set; }
 					public short coef2 { get; set; }
 
 					public static readonly int classSize = 4;
 				}
-				public Adpcmcoef[] aCoef { get; set; }  // Always 7 coefficient pairs for MS ADPCM
+				public Adpcmcoef[]? aCoef { get; set; }  // Always 7 coefficient pairs for MS ADPCM
 
 				public static readonly int classSize = 4 + (7 * Adpcmcoef.classSize);
 
@@ -118,9 +118,9 @@ namespace ResourceFileEditor.Manager.Audio
 					return adpcm;
 				}
 			}
-			public Adpcm adpcm { get; set; }
+			public Adpcm? adpcm { get; set; }
 			// Valid if basic.formatTag == FORMAT_XMA2
-			public class Xma2
+			public sealed class Xma2
 			{
 				public UInt16 numStreams { get; set; }      // Number of audio streams (1 or 2 channels each)
 				public UInt32 channelMask { get; set; }     // matches the CHANNEL_MASK enum above
@@ -164,21 +164,21 @@ namespace ResourceFileEditor.Manager.Audio
 					return xma2;
 				}
 			}
-			public Xma2 xma2 { get; set; }
+			public Xma2? xma2 { get; set; }
 
 			public static readonly int classSize = Extensible.classSize + Adpcm.classSize + Xma2.classSize;
 		}
-		public Extra extra { get; set; }
+		public Extra? extra { get; set; }
 		public static readonly int classSize = Basic.classSize + 2 + Extra.classSize;
 	}
 
-	public class GeneratedBuffer
+    sealed class GeneratedBuffer
     {
 		public int bufferSize { get; set; }
 		public int numSamples { get; set; }
-		public byte[] buffer { get; set; }
+		public byte[]? buffer { get; set; }
     }
-class AudioModels
+    sealed class AudioModels
     {
     }
 }

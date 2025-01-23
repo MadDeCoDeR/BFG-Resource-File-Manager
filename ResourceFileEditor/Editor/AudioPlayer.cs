@@ -31,53 +31,76 @@ using System.Windows.Forms;
 
 namespace ResourceFileEditor.Editor
 {
-    class AudioPlayer : Editor
+    sealed class AudioPlayer : Editor, IDisposable
     {
         private ManagerImpl manager;
-        private SoundPlayer audioPlayer;
-        private Button playButton;
+        private SoundPlayer? audioPlayer;
+        private Button? playButton;
 
         public AudioPlayer(ManagerImpl manager)
         {
             this.manager = manager;
         }
+
         public void start(Panel panel, TreeNode node)
         {
             string relativePath = PathParser.NodetoPath(node);
-            Stream file = manager.loadEntry(relativePath);
-            file.Seek(0, SeekOrigin.Begin);
-            if (relativePath.EndsWith("idwav"))
+            Stream? file = manager.loadEntry(relativePath);
+            if (file != null)
             {
-                file = AudioManager.LoadFile(file);
+                file.Seek(0, SeekOrigin.Begin);
+                if (relativePath.EndsWith("idwav", System.StringComparison.InvariantCulture))
+                {
+                    file = AudioManager.LoadFile(file);
+                }
+                audioPlayer = new SoundPlayer(file);
+                Panel playerPanel = new Panel();
+                playerPanel.Width = panel.Width;
+                playerPanel.Height = panel.Height;
+                playerPanel.Dock = DockStyle.Fill;
+                playerPanel.ParentChanged += new EventHandler(diposePanel);
+                playButton = new Button();
+                playButton.Text = "play";
+                playButton.Location = new System.Drawing.Point(playerPanel.Width / 2, playerPanel.Height / 2);
+                playButton.Click += new EventHandler(playPause);
+                playerPanel.Controls.Add(playButton);
+                panel.Controls.Add(playerPanel);
             }
-            audioPlayer = new SoundPlayer(file);
-            Panel playerPanel = new Panel();
-            playerPanel.Width = panel.Width;
-            playerPanel.Height = panel.Height;
-            playerPanel.Dock = DockStyle.Fill;
-            playerPanel.ParentChanged += new EventHandler(diposePanel);
-            playButton = new Button();
-            playButton.Text = "play";
-            playButton.Location = new System.Drawing.Point(playerPanel.Width / 2, playerPanel.Height / 2);
-            playButton.Click += new EventHandler(playPause);
-            playerPanel.Controls.Add(playButton);
-            panel.Controls.Add(playerPanel);
         }
 
-        private void diposePanel(object sender, EventArgs e)
+        public void Dispose()
         {
-            if (((Panel)sender).Parent == null)
+            if (audioPlayer != null)
             {
                 audioPlayer.Stop();
                 audioPlayer.Dispose();
                 audioPlayer = null;
+            }
+
+            if (playButton != null)
+            {
+                playButton.Dispose();
+                playButton = null;
+            }
+        }
+        private void diposePanel(object? sender, EventArgs e)
+        {
+            if (sender != null && ((Panel)sender).Parent == null)
+            {
+                if (audioPlayer != null)
+                {
+                    audioPlayer.Stop();
+                }
                    
             }
         }
 
-        private void playPause(object sender, EventArgs e)
+        private void playPause(object? sender, EventArgs e)
         {
-            audioPlayer.Play();
+            if (audioPlayer != null)
+            {
+                audioPlayer.Play();
+            }
         }
     }
 }

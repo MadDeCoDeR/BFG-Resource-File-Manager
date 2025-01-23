@@ -25,7 +25,7 @@ using System.Windows.Forms;
 
 namespace ResourceFileEditor.utils
 {
-    class PathParser
+    sealed class PathParser
     {
         public static TreeNode parsePath(string Path)
         {
@@ -48,8 +48,12 @@ namespace ResourceFileEditor.utils
             return rootnode;
         }
 
-        public static string NodetoPath(TreeNode node)
+        public static string NodetoPath(TreeNode? node)
         {
+            if (node == null)
+            {
+                return "";
+            }
             string relativePath = "";
             do
             {
@@ -68,7 +72,7 @@ namespace ResourceFileEditor.utils
                 }
                 node = node.Parent;
             } while (true);
-            if (relativePath.StartsWith("root"))
+            if (relativePath.StartsWith("root", System.StringComparison.InvariantCulture))
             {
                 relativePath = relativePath.Substring(5);
             }

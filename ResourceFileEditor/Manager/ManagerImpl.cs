@@ -37,18 +37,18 @@ using System.Windows.Forms;
 
 namespace ResourceFileEditor.Manager
 {
-    class ManagerImpl : Manager
+    sealed class ManagerImpl : Manager
     {
         private static readonly UInt32 RESOURCE_FILE_MAGIC = 0xD000000D;
         private static readonly Int32 RESOURCE_FILE_HEAD_OFFSET = 12;
         private ManagerUi managerUI;
 
-        private List<TableOfContentEntry> contents;
+        private List<TableOfContentEntry>? contents;
 
-        private bool isDirty = false;
-        private bool closeAfterSave = false;
+        private bool isDirty;
+        private bool closeAfterSave;
 
-        string resourceFile;
+        string? resourceFile;
 
         public ManagerImpl(ManagerUi managerUI)
         {
@@ -71,9 +71,12 @@ namespace ResourceFileEditor.Manager
                         contents = new List<TableOfContentEntry>(TableOfContentEntry.parseBytes(toc, Convert.ToInt32(numberOfFiles)));
                         for (int i = 0; i < contents.Count; i++)
                         {
-                            NodeUtils.addNode(managerUI.GetTreeView().Nodes[0].Nodes, PathParser.parsePath(contents[i].Filename));
-                            // form1.GetTreeView().Nodes.Add(PathParser.parsePath(tocs[i].Filename));
-                            Console.WriteLine(contents[i].Filename);
+                            if (contents[i].Filename != null)
+                            {
+                                NodeUtils.addNode(managerUI.GetTreeView().Nodes[0].Nodes, PathParser.parsePath(contents[i].Filename!));
+                                // form1.GetTreeView().Nodes.Add(PathParser.parsePath(tocs[i].Filename));
+                                Console.WriteLine(contents[i].Filename);
+                            }
                         }
                         resourceFile = ((FileStream)file).Name;
                         managerUI.UpdateTitle(GetResourceFileName(), isDirty);
@@ -90,87 +93,90 @@ namespace ResourceFileEditor.Manager
 
         public void writeFile(Stream file)
         {
-            using (file)
+            if (resourceFile != null && contents != null)
             {
-                try
+                using (file)
                 {
-                    string tempres;
-                    if (((FileStream)file).Name == resourceFile)
+                    try
                     {
-                        tempres = resourceFile + ".bak";
-                    }
-                    else
-                    {
-                        tempres = resourceFile;
-                    }
-                    FileManager.FileManager.writeUint32Swapped(file, 0x0, RESOURCE_FILE_MAGIC);
-                    FileManager.FileManager.writeUint32Swapped(file, 4, 0);
-                    FileManager.FileManager.writeUint32Swapped(file, 8, 0);
-                    UInt32 dataOffset = 0;
-                    for (int i = 0; i < contents.Count; i++)
-                    {
-
-                        byte[] buffer;
-                        if (contents[i].file == null)
+                        string tempres;
+                        if (((FileStream)file).Name == resourceFile)
                         {
-                            Stream resourceStream = File.OpenRead(tempres);
-                            buffer = FileManager.FileManager.readByteArray(resourceStream, (int)contents[i].filePos, (int)contents[i].fileSize);
-                            resourceStream.Close();
+                            tempres = resourceFile + ".bak";
                         }
                         else
                         {
-                            MemoryStream ms = new MemoryStream();
-                            contents[i].file.Seek(0, SeekOrigin.Begin);
-                            contents[i].file.CopyTo(ms);
-                            buffer = ms.ToArray();
-                            if (buffer.Length == 0)
-                            {
-                                throw new Exception("Empty stream");
-                            }
-                            contents[i].file.Close();
-                            contents[i].file = null;
+                            tempres = resourceFile;
                         }
-                        FileManager.FileManager.writeByteArray(file, (int)(RESOURCE_FILE_HEAD_OFFSET + dataOffset), buffer);
-                        contents[i].filePos = (uint)(RESOURCE_FILE_HEAD_OFFSET + dataOffset);
-                        dataOffset += contents[i].fileSize;
-                    }
-                    FileManager.FileManager.writeUint32Swapped(file, 4, (uint)(RESOURCE_FILE_HEAD_OFFSET + dataOffset));
-                    FileManager.FileManager.writeUint32Swapped(file, (int)(RESOURCE_FILE_HEAD_OFFSET + dataOffset), (uint)contents.Count);
+                        FileManager.FileManager.writeUint32Swapped(file, 0x0, RESOURCE_FILE_MAGIC);
+                        FileManager.FileManager.writeUint32Swapped(file, 4, 0);
+                        FileManager.FileManager.writeUint32Swapped(file, 8, 0);
+                        UInt32 dataOffset = 0;
+                        for (int i = 0; i < contents.Count; i++)
+                        {
 
-                    Int32 tableOffset = (int)(RESOURCE_FILE_HEAD_OFFSET + dataOffset + 4);
-                    UInt32 tableEntryOffset = 0;
-                    for (int i = 0; i < contents.Count; i++)
-                    {
-                        byte[] buffer = contents[i].parseToBytes();
-                        FileManager.FileManager.writeByteArray(file, (int)(tableOffset + tableEntryOffset), buffer);
-                        tableEntryOffset += Convert.ToUInt32(buffer.Length);
-                    }
-                    FileManager.FileManager.writeUint32Swapped(file, 8, tableEntryOffset);
-                    if (((FileStream)file).Name == resourceFile)
-                    {
+                            byte[] buffer;
+                            if (contents[i].file == null)
+                            {
+                                Stream resourceStream = File.OpenRead(tempres);
+                                buffer = FileManager.FileManager.readByteArray(resourceStream, (int)contents[i].filePos, (int)contents[i].fileSize);
+                                resourceStream.Close();
+                            }
+                            else
+                            {
+                                MemoryStream ms = new MemoryStream();
+                                contents[i].file!.Seek(0, SeekOrigin.Begin);
+                                contents[i].file!.CopyTo(ms);
+                                buffer = ms.ToArray();
+                                if (buffer.Length == 0)
+                                {
+                                    throw new EntryPointNotFoundException("Empty stream");
+                                }
+                                contents[i].file!.Close();
+                                contents[i].file = null;
+                            }
+                            FileManager.FileManager.writeByteArray(file, (int)(RESOURCE_FILE_HEAD_OFFSET + dataOffset), buffer);
+                            contents[i].filePos = (uint)(RESOURCE_FILE_HEAD_OFFSET + dataOffset);
+                            dataOffset += contents[i].fileSize;
+                        }
+                        FileManager.FileManager.writeUint32Swapped(file, 4, (uint)(RESOURCE_FILE_HEAD_OFFSET + dataOffset));
+                        FileManager.FileManager.writeUint32Swapped(file, (int)(RESOURCE_FILE_HEAD_OFFSET + dataOffset), (uint)contents.Count);
 
-                        File.Delete(tempres);
+                        Int32 tableOffset = (int)(RESOURCE_FILE_HEAD_OFFSET + dataOffset + 4);
+                        UInt32 tableEntryOffset = 0;
+                        for (int i = 0; i < contents.Count; i++)
+                        {
+                            byte[] buffer = contents[i].parseToBytes();
+                            FileManager.FileManager.writeByteArray(file, (int)(tableOffset + tableEntryOffset), buffer);
+                            tableEntryOffset += Convert.ToUInt32(buffer.Length);
+                        }
+                        FileManager.FileManager.writeUint32Swapped(file, 8, tableEntryOffset);
+                        if (((FileStream)file).Name == resourceFile)
+                        {
+
+                            File.Delete(tempres);
+                        }
+                        resourceFile = ((FileStream)file).Name;
+                        file.Close();
+                        isDirty = false;
+                        managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
+                        if (closeAfterSave)
+                        {
+                            CloseFile();
+                        }
                     }
-                    resourceFile = ((FileStream)file).Name;
-                    file.Close();
-                    isDirty = false;
-                    managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
-                    if (closeAfterSave)
+                    catch (Exception ex)
                     {
-                        CloseFile();
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK);
+                        Console.WriteLine(ex.StackTrace);
                     }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK);
-                    Console.WriteLine(ex.StackTrace);
                 }
             }
         }
 
         public void AddFile(Stream file, string relativePath)
         {
-            TableOfContentEntry oldToc = FindContentByPath(relativePath);
+            TableOfContentEntry? oldToc = FindContentByPath(relativePath);
             if (oldToc != null)
             {
                 this.DeleteEntry(relativePath);
@@ -179,7 +185,10 @@ namespace ResourceFileEditor.Manager
             toc.Filename = relativePath;
             toc.fileSize = (uint)((FileStream)file).Length;
             toc.file = file;
-            contents.Add(toc);
+            if (contents != null)
+            {
+                contents.Add(toc);
+            }
             isDirty = true;
             managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
             NodeUtils.addNode(managerUI.GetTreeView().Nodes[0].Nodes, PathParser.parsePath(relativePath));
@@ -197,10 +206,13 @@ namespace ResourceFileEditor.Manager
         {
             string filename = relativePath.Remove(relativePath.Length - 1);
 
-            TableOfContentEntry content = FindContentByPath(relativePath);
+            TableOfContentEntry? content = FindContentByPath(relativePath);
             if (content != null)
             {
-                contents.Remove(content);
+                if (contents != null)
+                {
+                    contents.Remove(content);
+                }
                 isDirty = true;
                 managerUI.UpdateTitle(this.GetResourceFileName(), isDirty);
             }
@@ -222,33 +234,34 @@ namespace ResourceFileEditor.Manager
                 managerUI.extractProgressBar.Invoke(new Action(() => managerUI.extractProgressBar.Maximum = children.Count));
                 foreach (string child in children)
                 {
-                    if (child.Contains("/"))
+                    if (child.Contains('/'))
                     {
-                        string outputPath = Path.Combine(outputFolder, child.Substring(0, child.LastIndexOf("/")));
+                        string outputPath = Path.Combine(outputFolder, child.Substring(0, child.LastIndexOf('/')));
                         Directory.CreateDirectory(outputPath);
-                        managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
-                        ExtractEntry(child, outputPath);
+                        managerUI.extractProgressLabel!.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
+                        await Task.Run(() => ExtractEntry(child, outputPath));
                     }
                     else
                     {
-                        managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
-                        ExtractEntry(child, outputFolder);
+                        managerUI.extractProgressLabel!.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
+                        await Task.Run(() => ExtractEntry(child, outputFolder));
                     }
                     if (managerUI.extractProgressBar == null)
                         break;
                     managerUI.extractProgressBar.Invoke(new Action(() => managerUI.extractProgressBar.Increment(1)));
                 }
 
-                managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = "Completed"));
+                managerUI.extractProgressLabel!.Invoke(new Action(() => managerUI.extractProgressLabel.Text = "Completed"));
             }
         }
 
-        public async Task ExtractEntry(string relativePath, string outputFolder)
+        public void ExtractEntry(string relativePath, string outputFolder)
         {
-            TableOfContentEntry content = FindContentByPath(relativePath);
+            TableOfContentEntry? content = FindContentByPath(relativePath);
             if (content != null)
             {
-                string outputPath = outputFolder + "/" + relativePath.Substring(relativePath.LastIndexOf("/") + 1);
+                string TempFile = relativePath.Substring(relativePath.LastIndexOf('/') + 1);
+                string outputPath = outputFolder + "/" + TempFile;
                 FileStream file = new FileStream(outputPath, FileMode.OpenOrCreate);
                 if (content.file != null)
                 {
@@ -256,10 +269,13 @@ namespace ResourceFileEditor.Manager
                 }
                 else
                 {
-                    Stream resourceStream = File.OpenRead(resourceFile);
-                    byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
-                    file.Write(buffer, 0, buffer.Length);
-                    resourceStream.Close();
+                    if (resourceFile != null)
+                    {
+                        Stream resourceStream = File.OpenRead(resourceFile);
+                        byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
+                        file.Write(buffer, 0, buffer.Length);
+                        resourceStream.Close();
+                    }
                 }
                 file.Close();
             }
@@ -277,34 +293,35 @@ namespace ResourceFileEditor.Manager
                 managerUI.extractProgressBar.Invoke(new Action(() => managerUI.extractProgressBar.Maximum = children.Count));
                 foreach (string child in children)
                 {
-                    if (child.Contains("/"))
+                    if (child.Contains('/'))
                     {
-                        string outputPath = Path.Combine(outputFolder, child.Substring(0, child.LastIndexOf("/")));
+                        string outputPath = Path.Combine(outputFolder, child.Substring(0, child.LastIndexOf('/')));
                         Directory.CreateDirectory(outputPath);
-                        managerUI.extractProgressLabel.Invoke(new Action(() =>managerUI.extractProgressLabel.Text = child));
-                        ExportEntry(child, outputPath);
+                        managerUI.extractProgressLabel!.Invoke(new Action(() =>managerUI.extractProgressLabel.Text = child));
+                        await Task.Run(() => ExportEntry(child, outputPath));
                     }
                     else
                     {
-                        managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
-                        ExportEntry(child, outputFolder);
+                        managerUI.extractProgressLabel!.Invoke(new Action(() => managerUI.extractProgressLabel.Text = child));
+                        await Task.Run(() => ExportEntry(child, outputFolder));
                     }
                     if (managerUI.extractProgressBar == null)
                         break;
                     managerUI.extractProgressBar.Invoke(new Action(() => managerUI.extractProgressBar.Increment(1)));
                 }
 
-                managerUI.extractProgressLabel.Invoke(new Action(() => managerUI.extractProgressLabel.Text = "Completed"));
+                managerUI.extractProgressLabel!.Invoke(new Action(() => managerUI.extractProgressLabel.Text = "Completed"));
             }
         }
 
-        public async Task ExportEntry(string relativePath, string outputFolder)
+        public void ExportEntry(string relativePath, string outputFolder)
         {
-            TableOfContentEntry content = FindContentByPath(relativePath);
+            TableOfContentEntry? content = FindContentByPath(relativePath);
             if (content != null)
             {
-                string outputPath = outputFolder + "/" + relativePath.Substring(relativePath.LastIndexOf("/") + 1);
-                string fileExtension = outputPath.Substring(outputPath.LastIndexOf(".") + 1);
+                string TempFile = relativePath.Substring(relativePath.LastIndexOf('/') + 1);
+                string outputPath = outputFolder + "/" + TempFile;
+                string fileExtension = outputPath.Substring(outputPath.LastIndexOf('.') + 1);
                 switch (fileExtension)
                 {
                     case "idwav":
@@ -321,11 +338,14 @@ namespace ResourceFileEditor.Manager
                 }
                 else
                 {
-                    Stream resourceStream = File.OpenRead(resourceFile);
-                    byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
+                    if (resourceFile != null)
+                    {
+                        Stream resourceStream = File.OpenRead(resourceFile);
+                        byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
 
-                    file.Write(buffer, 0, buffer.Length);
-                    resourceStream.Close();
+                        file.Write(buffer, 0, buffer.Length);
+                        resourceStream.Close();
+                    }
                 }
                 Stream exportedFile = new MemoryStream();
                 switch (fileExtension)
@@ -337,7 +357,7 @@ namespace ResourceFileEditor.Manager
 
                         break;
                     case "bimage":
-                        exportedFile = Image.ImageManager.LoadImage(file);
+                        exportedFile = Image.ImageManager.LoadImage(file)!;
                         //Second Pass in order to make a valid tga
                         ImageResult imageResult = ImageResult.FromStream(exportedFile, ColorComponents.RedGreenBlueAlpha);
                         byte[] data = imageResult.Data;
@@ -346,9 +366,12 @@ namespace ResourceFileEditor.Manager
                         writer.WriteTga(data, imageResult.Width, imageResult.Height, StbImageWriteSharp.ColorComponents.RedGreenBlueAlpha, file);
                         break;
                     default:
-                        Stream resourceStream = File.OpenRead(resourceFile);
-                        byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
-                        file.Write(buffer, 0, buffer.Length);
+                        if (resourceFile != null)
+                        {
+                            Stream resourceStream = File.OpenRead(resourceFile);
+                            byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
+                            file.Write(buffer, 0, buffer.Length);
+                        }
                         break;
                 }
                 exportedFile.Close();
@@ -359,17 +382,20 @@ namespace ResourceFileEditor.Manager
 
         public long GetFileSize(string relativePath)
         {
-            TableOfContentEntry content = FindContentByPath(relativePath);
+            TableOfContentEntry? content = FindContentByPath(relativePath);
             return content != null ? content.fileSize : -1L;
         }
 
-        private TableOfContentEntry FindContentByPath(string relativePath)
+        private TableOfContentEntry? FindContentByPath(string relativePath)
         {
-            for (int i = 0; i < contents.Count; i++)
+            if (contents != null)
             {
-                if (contents[i].Filename == relativePath)
+                for (int i = 0; i < contents.Count; i++)
                 {
-                    return contents[i];
+                    if (contents[i].Filename == relativePath)
+                    {
+                        return contents[i];
+                    }
                 }
             }
             return null;
@@ -377,11 +403,14 @@ namespace ResourceFileEditor.Manager
         private List<string> GetFilesFromPath(string relativePath)
         {
             List<string> innerEntries = new List<string>();
-            for (int i = 0; i < contents.Count; i++)
+            if (contents != null)
             {
-                if (contents[i].Filename.StartsWith(relativePath))
+                for (int i = 0; i < contents.Count; i++)
                 {
-                    innerEntries.Add(contents[i].Filename);
+                    if (contents[i].Filename != null && contents[i].Filename!.StartsWith(relativePath, StringComparison.InvariantCulture))
+                    {
+                        innerEntries.Add(contents[i].Filename!);
+                    }
                 }
             }
             return innerEntries;
@@ -391,10 +420,13 @@ namespace ResourceFileEditor.Manager
         {
             long tocSize = 0;
             long fileSize = 0;
-            foreach (TableOfContentEntry entry in contents)
+            if (contents != null)
             {
-                tocSize += entry.GetByteSize();
-                fileSize += entry.fileSize;
+                foreach (TableOfContentEntry entry in contents)
+                {
+                    tocSize += entry.GetByteSize();
+                    fileSize += entry.fileSize;
+                }
             }
 
             return 16 + tocSize + fileSize;
@@ -432,9 +464,9 @@ namespace ResourceFileEditor.Manager
             closeAfterSave = false;
         }
 
-        public Stream loadEntry(string relativePath)
+        public Stream? loadEntry(string relativePath)
         {
-            TableOfContentEntry content = FindContentByPath(relativePath);
+            TableOfContentEntry? content = FindContentByPath(relativePath);
             if (content != null)
             {
                 if (content.file != null)
@@ -443,10 +475,13 @@ namespace ResourceFileEditor.Manager
                 }
                 else
                 {
-                    Stream resourceStream = File.OpenRead(resourceFile);
-                    byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
-                    resourceStream.Close();
-                    return new MemoryStream(buffer);
+                    if (resourceFile != null)
+                    {
+                        Stream resourceStream = File.OpenRead(resourceFile);
+                        byte[] buffer = FileManager.FileManager.readByteArray(resourceStream, (int)content.filePos, (int)content.fileSize);
+                        resourceStream.Close();
+                        return new MemoryStream(buffer);
+                    }
                 }
             }
             return null;
@@ -454,7 +489,7 @@ namespace ResourceFileEditor.Manager
 
         public void updateEntry(string relativePath, Stream data)
         {
-            TableOfContentEntry content = FindContentByPath(relativePath);
+            TableOfContentEntry? content = FindContentByPath(relativePath);
             if (content != null)
             {
                 content.filePos = 0;
@@ -465,17 +500,17 @@ namespace ResourceFileEditor.Manager
             }
         }
 
-        public string GetResourceFileName()
+        public string? GetResourceFileName()
         {
             if (resourceFile != null)
             {
-                int lastIndex = resourceFile.LastIndexOf(FileCheck.getPathSeparator());
+                int lastIndex = resourceFile.LastIndexOf(FileCheck.getPathSeparator(), StringComparison.InvariantCulture);
                 return resourceFile.Substring(lastIndex + 1);
             }
             return null;
         }
 
-        public string GetResourceFullPath()
+        public string? GetResourceFullPath()
         {
             return resourceFile;
         }

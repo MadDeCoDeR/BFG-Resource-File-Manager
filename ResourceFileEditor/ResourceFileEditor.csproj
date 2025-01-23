@@ -1,17 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyVersion>1.0.5</AssemblyVersion>
-    <FileVersion>1.0.5</FileVersion>
+    <AssemblyVersion>1.0.6</AssemblyVersion>
+    <FileVersion>1.0.6</FileVersion>
     <TargetFrameworks>net8.0-windows</TargetFrameworks>
     <UseWPF>True</UseWPF>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DebugType>none</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="ManagerUi.cs">
@@ -30,5 +33,10 @@
     <PackageReference Include="StbImageWriteSharp" />
     <PackageReference Include="System.Net.Http" />
     <PackageReference Include="System.Text.RegularExpressions" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+    </None>
   </ItemGroup>
 </Project>

@@ -34,7 +34,7 @@ using System.Windows.Forms;
 
 namespace ResourceFileEditor.Editor
 {
-    class ImageViewer : Editor
+    sealed class ImageViewer : Editor
     {
         private ManagerImpl manager;
 
@@ -45,33 +45,36 @@ namespace ResourceFileEditor.Editor
         public void start(Panel panel, TreeNode node)
         {
             string relativePath = PathParser.NodetoPath(node);
-            Stream file = manager.loadEntry(relativePath);
-            PictureBox pictureBox = new PictureBox();
-            pictureBox.Width = panel.Width;
-            pictureBox.Height = panel.Height;
-            pictureBox.Dock = DockStyle.Fill;
-            pictureBox.Location = new Point(0, 0);
-            pictureBox.BackColor = Color.AntiqueWhite;
-            pictureBox.BackgroundImage = generateBackgound();
-            if (relativePath.EndsWith("bimage"))
+            Stream? file = manager.loadEntry(relativePath);
+            if (file != null)
             {
-                pictureBox.Image = loadBitmap(ImageManager.LoadImage(file));
+                PictureBox pictureBox = new PictureBox();
+                pictureBox.Width = panel.Width;
+                pictureBox.Height = panel.Height;
+                pictureBox.Dock = DockStyle.Fill;
+                pictureBox.Location = new Point(0, 0);
+                pictureBox.BackColor = Color.AntiqueWhite;
+                pictureBox.BackgroundImage = GenerateBackgound();
+                if (relativePath.EndsWith("bimage", StringComparison.InvariantCulture))
+                {
+                    pictureBox.Image = loadBitmap(ImageManager.LoadImage(file)!);
+                }
+                else
+                {
+                    pictureBox.Image = loadBitmap(file);
+                }
+                pictureBox.ParentChanged += new EventHandler(disposeImage);
+                panel.Controls.Add(pictureBox);
             }
-            else
-            {
-                pictureBox.Image = loadBitmap(file);
-            }
-            pictureBox.ParentChanged += new EventHandler(disposeImage);
-            panel.Controls.Add(pictureBox);
         }
 
-        private void disposeImage(object sender, EventArgs e)
+        private void disposeImage(object? sender, EventArgs e)
         {
-            if (((PictureBox)sender).Parent == null && ((PictureBox)sender).Image != null)
+            if (sender != null && ((PictureBox)sender).Parent == null && ((PictureBox)sender).Image != null && ((PictureBox)sender).BackgroundImage != null)
             {
                 ((PictureBox)sender).Image.Dispose();
                 ((PictureBox)sender).Image = null;
-                ((PictureBox)sender).BackgroundImage.Dispose();
+                ((PictureBox)sender).BackgroundImage!.Dispose();
                 ((PictureBox)sender).BackgroundImage = null;
             }
         }
@@ -104,7 +107,7 @@ namespace ResourceFileEditor.Editor
             return bmp;
         }
 
-        private Bitmap generateBackgound()
+        private static Bitmap GenerateBackgound()
         {
             int size = 20;
             Bitmap backgound = new Bitmap(size * 2, size * 2);

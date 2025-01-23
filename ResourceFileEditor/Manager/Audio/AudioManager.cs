@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFileEditor.Manager.Audio
 {
-    class AudioManager
+    sealed class AudioManager
     {
         const UInt32 SOUND_MAGIC_IDMSA = 0x6D7A7274;
         public static Stream LoadFile(Stream file)
@@ -88,7 +88,10 @@ namespace ResourceFileEditor.Manager.Audio
                     generatedBuffers[i].bufferSize = FileManager.FileManager.readIntSwapped(file, index);
                     index += 4;
                     generatedBuffers[i].buffer = FileManager.FileManager.readByteArray(file, index, generatedBuffers[i].bufferSize);
-                    data.Write(generatedBuffers[i].buffer, 0, generatedBuffers[i].bufferSize);
+                    if (generatedBuffers[i].buffer != null)
+                    {
+                        data.Write(generatedBuffers[i].buffer!, 0, generatedBuffers[i].bufferSize);
+                    }
                     
                 }
                 if (waveFormat.basic.formatTag == (ushort)WaveFormat.Basic.FormatTag.FORMAT_XMA2)

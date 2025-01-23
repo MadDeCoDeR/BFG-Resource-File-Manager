@@ -26,7 +26,7 @@ using System.IO;
 
 namespace ResourceFileEditor.utils
 {
-    class FileCheck
+    sealed class FileCheck
     {
 
         public enum FileTypes
@@ -35,17 +35,17 @@ namespace ResourceFileEditor.utils
         }
         public static Boolean isFile(string name)
         {
-            return name.Contains(".");
+            return name.Contains('.');
         }
 
         public static Boolean isExportableToStandard(string name)
         {
-            return !name.Contains(".") || name.EndsWith("idwav") || name.EndsWith("bimage");
+            return !name.Contains('.') || name.EndsWith("idwav", StringComparison.InvariantCulture) || name.EndsWith("bimage", StringComparison.InvariantCulture);
         }
 
         public static FileTypes getFileType(Stream file, string filename)
         {
-            string fileext = filename.Substring(filename.LastIndexOf(".") + 1);
+            string fileext = filename.Substring(filename.LastIndexOf('.') + 1);
             if (fileext != null)
             {
                 switch (fileext)

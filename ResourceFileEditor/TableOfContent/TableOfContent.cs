@@ -27,13 +27,13 @@ using System.IO;
 
 namespace ResourceFileEditor.TableOfContent
 {
-    class TableOfContentEntry
+    sealed class TableOfContentEntry
     {
-        public string Filename { get; set; }
+        public string? Filename { get; set; }
         public UInt32 filePos { get; set; }
         public UInt32 fileSize { get; set; }
 
-        public Stream file { get; set; }
+        public Stream? file { get; set; }
 
         public static TableOfContentEntry[] parseBytes(byte[] buffer, int size)
         {
@@ -61,26 +61,33 @@ namespace ResourceFileEditor.TableOfContent
 
         public long GetByteSize()
         {
-            return 12 + Filename.Length;
+            if (Filename != null)
+            {
+                return 12 + Filename.Length;
+            }
+            return 0;
         }
 
         public byte[] parseToBytes()
         {
+            if (Filename != null)
+            {
+                MemoryStream ms = new MemoryStream();
+                byte[] buffer = new byte[4];
 
-            MemoryStream ms = new MemoryStream();
-            byte[] buffer = new byte[4];
+                ms.Write(BitConverter.GetBytes(Filename.Length), 0, 4);
+                buffer = System.Text.Encoding.UTF8.GetBytes(Filename);
+                ms.Write(buffer, 0, Filename.Length);
+                buffer = BitConverter.GetBytes(filePos);
+                ByteSwap.swapBytes(buffer);
+                ms.Write(buffer, 0, 4);
+                buffer = BitConverter.GetBytes(fileSize);
+                ByteSwap.swapBytes(buffer);
+                ms.Write(buffer, 0, 4);
 
-            ms.Write(BitConverter.GetBytes(Filename.Length), 0, 4);
-            buffer = System.Text.Encoding.UTF8.GetBytes(Filename);
-            ms.Write(buffer, 0, Filename.Length);
-            buffer = BitConverter.GetBytes(filePos);
-            ByteSwap.swapBytes(buffer);
-            ms.Write(buffer, 0, 4);
-            buffer = BitConverter.GetBytes(fileSize);
-            ByteSwap.swapBytes(buffer);
-            ms.Write(buffer, 0, 4);
-
-            return ms.ToArray();
+                return ms.ToArray();
+            }
+            return [];
         }
     }
 }

@@ -45,7 +45,7 @@ namespace ResourceFileEditor
             {
                 using (FileStream fs = new FileStream(args[0], FileMode.Open))
                 {
-                    mui.openFile(fs);
+                    mui.OpenFile(fs);
                 }
             }
             Application.Run(mui);

@@ -25,11 +25,11 @@ using System.Windows.Forms;
 
 namespace ResourceFileEditor.utils
 {
-    class NodeUtils
+    sealed class NodeUtils
     {
         public static void addNode(TreeNodeCollection root, TreeNode child)
         {
-            TreeNode result = FindByName(root, child.Text);
+            TreeNode? result = FindByName(root, child.Text);
             if (result != null)
             {
                 populateParent(result, child.Nodes);
@@ -45,7 +45,7 @@ namespace ResourceFileEditor.utils
         {
             foreach (TreeNode subChild in newChilds)
             {
-                TreeNode subKid = FindByName(parent.Nodes, subChild.Text);
+                TreeNode? subKid = FindByName(parent.Nodes, subChild.Text);
                 if (subKid == null)
                 {
                     parent.Nodes.Add(subChild);
@@ -57,7 +57,7 @@ namespace ResourceFileEditor.utils
             }
         }
 
-        public static TreeNode FindByName(TreeNodeCollection root, string key)
+        public static TreeNode? FindByName(TreeNodeCollection root, string key)
         {
             foreach (TreeNode node in root)
             {

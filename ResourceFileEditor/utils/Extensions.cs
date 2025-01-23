@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ResourceFileEditor.utils
 {
-    public static class Extensions
+    static class Extensions
     {
         public static byte[] ToByteArray(this ColorRgba32 color)
         {

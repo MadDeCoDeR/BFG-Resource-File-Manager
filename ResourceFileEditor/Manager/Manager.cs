@@ -42,13 +42,13 @@ namespace ResourceFileEditor.Manager
 
         Task ExtractFolder(string relativePath, string outputFolder);
 
-        Task ExtractEntry(string relativePath, string outputFolder);
+        void ExtractEntry(string relativePath, string outputFolder);
 
         Task ExtractAndExportFolder(string relativePath, string outputFolder);
 
-        Task ExportEntry(string relativePath, string outputFolder);
+        void ExportEntry(string relativePath, string outputFolder);
 
-        Stream loadEntry(string relativePath);
+        Stream? loadEntry(string relativePath);
 
         void updateEntry(string relativePath, Stream data);
 
@@ -56,8 +56,8 @@ namespace ResourceFileEditor.Manager
 
         long GetResourceFileSize();
 
-        string GetResourceFileName();
+        string? GetResourceFileName();
 
-        string GetResourceFullPath();
+        string? GetResourceFullPath();
     }
 }

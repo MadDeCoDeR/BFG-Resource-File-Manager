@@ -33,7 +33,7 @@ using System.Windows.Forms;
 
 namespace ResourceFileEditor
 {
-    public partial class ManagerUi : Form
+    sealed partial class ManagerUi : Form
     {
         private ManagerImpl manager;
         private readonly string DEFAULT_TITLE = "BFG Resource File Manager";
@@ -41,8 +41,8 @@ namespace ResourceFileEditor
         private readonly double warningPercent = (((double)1 * 1024 * 1024 * 1024) / UInt32.MaxValue) * 100;
         private readonly EditorFactory editorFactory;
 
-        public Label extractProgressLabel;
-        public ProgressBar extractProgressBar;
+        public Label? extractProgressLabel { get; set; }
+        public ProgressBar? extractProgressBar { get; set; }
         public ManagerUi()
         {
             InitializeComponent();
@@ -57,7 +57,7 @@ namespace ResourceFileEditor
             editorFactory = new EditorFactory(manager);
         }
 
-        public void openFile(Stream file)
+        public void OpenFile(Stream file)
         {
             Stream myStream;
             if ((myStream = file) != null)
@@ -84,7 +84,7 @@ namespace ResourceFileEditor
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                this.openFile(ofd.OpenFile());
+                this.OpenFile(ofd.OpenFile());
             }
         }
 
@@ -101,7 +101,7 @@ namespace ResourceFileEditor
                 sfd.Filter = "DOOM 3 BFG Edition resource files(*.resources)| *.resources";
                 sfd.Title = "Save Resource File";
                 sfd.FileName = manager.GetResourceFileName();
-                if (sfd.FileName == "" || !sfd.FileName.EndsWith(".resources"))
+                if (sfd.FileName == "" || !sfd.FileName.EndsWith(".resources", StringComparison.InvariantCulture))
                 {
                     sfd.ShowDialog();
                 } else
@@ -113,7 +113,7 @@ namespace ResourceFileEditor
                 {
                     if (sfd.FileName == manager.GetResourceFullPath())
                     {
-                        File.Copy(manager.GetResourceFullPath(), manager.GetResourceFullPath() + ".bak", true);
+                        File.Copy(manager.GetResourceFullPath()!, manager.GetResourceFullPath() + ".bak", true);
                         File.Delete(sfd.FileName);
                     }
                     Stream file = File.Open(sfd.FileName, FileMode.OpenOrCreate);
@@ -237,14 +237,14 @@ namespace ResourceFileEditor
             }
         }
 
-        private void extractEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void extractEntryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ExtractEntry_logicAsync();
+            await ExtractEntry_logicAsync();
         }
 
         private async Task ExtractEntry_logicAsync()
         {
-            TreeNode node = treeView1.SelectedNode;
+            TreeNode? node = treeView1.SelectedNode;
             if (node == null)
             {
                 MessageBox.Show("Please select a folder", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -262,14 +262,14 @@ namespace ResourceFileEditor
                     await Task.Run(() => manager.ExtractEntry(relativePath, fbd.SelectedPath));
                 } else
                 {
-                    await Task.Run(() => manager.ExtractFolder(relativePath, fbd.SelectedPath));
+                    Task _ = Task.Run(() => manager.ExtractFolder(relativePath, fbd.SelectedPath));
                     this.ShowProgressBar("Extracting Files");
                 }
                 
             }
         }
 
-        private string ConvertBytesToString(long bytes)
+        private static string ConvertBytesToString(long bytes)
         {
             string[] sizes = { "B", "KB", "MB", "GB" };
             int repeats = 0;
@@ -285,7 +285,7 @@ namespace ResourceFileEditor
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            addFolderToolStripMenuItem.Visible = !FileCheck.isFile(e.Node.Text);
+            addFolderToolStripMenuItem.Visible = !FileCheck.isFile(e.Node!.Text);
             deleteEntryToolStripMenuItem.Visible = true;
             deleteEntryToolStripMenuItem.Text = FileCheck.isFile(e.Node.Text) ? "Delete Entry" : "Delete Folder";
             extractEntryToolStripMenuItem.Visible = true;
@@ -298,7 +298,11 @@ namespace ResourceFileEditor
                 string relativePath = PathParser.NodetoPath(e.Node);
                 toolStripStatusLabel3.Text = e.Node.Text + " file Size: " + ConvertBytesToString(manager.GetFileSize(relativePath));
                 //GK: Get FileType from name extension and determine how to load it
-                editorFactory.openEditor(FileCheck.getFileType(manager.loadEntry(PathParser.NodetoPath(e.Node)), e.Node.Text), splitContainer1.Panel2, e.Node);
+                Stream? file = manager.loadEntry(PathParser.NodetoPath(e.Node));
+                if (file != null)
+                {
+                    editorFactory.openEditor(FileCheck.getFileType(file, e.Node.Text), splitContainer1.Panel2, e.Node);
+                }
 
             }
         }
@@ -314,7 +318,7 @@ namespace ResourceFileEditor
             }
         }
 
-        private void updateToolStripBar(string fileName)
+        private void updateToolStripBar(string? fileName)
         {
             toolStripStatusLabel1.Text = fileName;
             if (fileName != null)
@@ -351,7 +355,7 @@ namespace ResourceFileEditor
             this.splitContainer1.Panel2.Controls.Clear();
         }
 
-        public void UpdateTitle(string resourceName, bool isDirty)
+        public void UpdateTitle(string? resourceName, bool isDirty)
         {
             if (resourceName != null)
             {
@@ -385,49 +389,52 @@ namespace ResourceFileEditor
 
         private void treeView1_DragDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop) && manager.GetResourceFileSize() > 0)
+            if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop) && manager.GetResourceFileSize() > 0)
             {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
                 importFilePaths(files);
             }
         }
 
         private void treeView1_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop) && manager.GetResourceFileSize() > 0)
+            if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop) && manager.GetResourceFileSize() > 0)
             {
                 e.Effect = DragDropEffects.Copy;
             }
         }
 
-        private void importFilePaths(string[] files, string parentDirectory = null)
+        private void importFilePaths(string[]? files, string? parentDirectory = null)
         {
-            for (int i = 0; i < files.Length; i++)
+            if (files != null)
             {
-                Console.WriteLine(files[i]);
-                string relativeName = files[i].Substring(files[i].LastIndexOf(FileCheck.getPathSeparator()) + 1);
-                if (FileCheck.isFile(relativeName))
+                for (int i = 0; i < files.Length; i++)
                 {
-                    Stream file = File.OpenRead(files[i]);
-                    TreeNode node = treeView1.SelectedNode;
-                    importData(file, node, parentDirectory);
-                }
-                else
-                {
-                    string[] directories = Directory.GetFiles(files[i], "*.*", SearchOption.AllDirectories);
-                    importFilePaths(directories, relativeName);
+                    Console.WriteLine(files[i]);
+                    string relativeName = files[i].Substring(files[i].LastIndexOf(FileCheck.getPathSeparator(), StringComparison.InvariantCulture) + 1);
+                    if (FileCheck.isFile(relativeName))
+                    {
+                        Stream file = File.OpenRead(files[i]);
+                        TreeNode node = treeView1.SelectedNode;
+                        importData(file, node, parentDirectory);
+                    }
+                    else
+                    {
+                        string[] directories = Directory.GetFiles(files[i], "*.*", SearchOption.AllDirectories);
+                        importFilePaths(directories, relativeName);
+                    }
                 }
             }
         }
 
-        private void importData(Stream myStream, TreeNode node, string parentDirectory = null)
+        private void importData(Stream myStream, TreeNode node, string? parentDirectory = null)
         {
             if (node == null)
             {
                 MessageBox.Show("Please select a folder", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             string fullPath = ((FileStream)myStream).Name;
-            string relativePath = fullPath.Substring(fullPath.LastIndexOf(FileCheck.getPathSeparator() + (parentDirectory != null ? parentDirectory : "")) + 1);
+            string relativePath = fullPath.Substring(fullPath.LastIndexOf(FileCheck.getPathSeparator() + (parentDirectory != null ? parentDirectory : ""), StringComparison.InvariantCulture) + 1);
             if (Environment.OSVersion.Platform != PlatformID.Unix && Environment.OSVersion.Platform != PlatformID.MacOSX)
             {
                 relativePath = relativePath.Replace("\\", "/");
@@ -445,10 +452,10 @@ namespace ResourceFileEditor
 
         private async void exportToStandardFormatToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            await exportToStandard_logic();
+            await ExportToStandard_logic();
         }
 
-        private async Task exportToStandard_logic()
+        private async Task ExportToStandard_logic()
         {
             TreeNode node = treeView1.SelectedNode;
             if (node == null)
@@ -466,11 +473,12 @@ namespace ResourceFileEditor
                 
                 if (FileCheck.isFile(relativePath))
                 {
-                    Task.Run(() => manager.ExportEntry(relativePath, fbd.SelectedPath));
+                    await Task.Run(() => manager.ExportEntry(relativePath, fbd.SelectedPath));
                 } else
                 {
-                    Task.Run(() => manager.ExtractAndExportFolder(relativePath, fbd.SelectedPath));
+                    Task _ = Task.Run(() => manager.ExtractAndExportFolder(relativePath, fbd.SelectedPath));
                     this.ShowProgressBar("Exporting Files");
+
                 }
                 
             }
@@ -479,7 +487,7 @@ namespace ResourceFileEditor
 
         private async void exportToStandardFormatToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            await exportToStandard_logic();
+            await ExportToStandard_logic();
         }
 
         private static DialogResult InputBox(string title, string promptText, ref string value)
@@ -523,7 +531,7 @@ namespace ResourceFileEditor
             return dialogResult;
         }
 
-        private void CloseProgressForm(object sender, EventArgs e)
+        private void CloseProgressForm(object? sender, EventArgs e)
         {
             this.extractProgressBar = null;
             this.extractProgressLabel = null;

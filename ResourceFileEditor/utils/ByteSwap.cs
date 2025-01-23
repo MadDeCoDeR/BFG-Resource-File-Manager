@@ -23,7 +23,7 @@ along with BFG Resource File Manager Source Code.  If not, see <http://www.gnu.o
 */
 namespace ResourceFileEditor.utils
 {
-    class ByteSwap
+    sealed class ByteSwap
     {
         public static void swapBytes(byte[] buffer)
         {

@@ -28,10 +28,10 @@ using System.Windows.Forms;
 
 namespace ResourceFileEditor.Editor
 {
-    class EditorFactory
+    sealed class EditorFactory
     {
 
-        private static Dictionary<FileCheck.FileTypes, Editor> registeredEditors = new Dictionary<FileCheck.FileTypes, Editor>();
+        private Dictionary<FileCheck.FileTypes, Editor> registeredEditors = new Dictionary<FileCheck.FileTypes, Editor>();
 
         public EditorFactory(ManagerImpl manager) {
             registeredEditors.Add(FileCheck.FileTypes.UNKNOWN, new TextEditor(manager));

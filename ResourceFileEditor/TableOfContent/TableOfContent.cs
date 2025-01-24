@@ -74,7 +74,6 @@ namespace ResourceFileEditor.TableOfContent
             {
                 MemoryStream ms = new MemoryStream();
                 byte[] buffer = new byte[4];
-
                 ms.Write(BitConverter.GetBytes(Filename.Length), 0, 4);
                 buffer = System.Text.Encoding.UTF8.GetBytes(Filename);
                 ms.Write(buffer, 0, Filename.Length);
@@ -84,8 +83,9 @@ namespace ResourceFileEditor.TableOfContent
                 buffer = BitConverter.GetBytes(fileSize);
                 ByteSwap.swapBytes(buffer);
                 ms.Write(buffer, 0, 4);
-
-                return ms.ToArray();
+                byte[] result = ms.ToArray();
+                ms.Close();
+                return result;
             }
             return [];
         }

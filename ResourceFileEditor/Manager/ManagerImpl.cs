@@ -109,8 +109,6 @@ namespace ResourceFileEditor.Manager
                             tempres = resourceFile;
                         }
                         FileManager.FileManager.writeUint32Swapped(file, 0x0, RESOURCE_FILE_MAGIC);
-                        FileManager.FileManager.writeUint32Swapped(file, 4, 0);
-                        FileManager.FileManager.writeUint32Swapped(file, 8, 0);
                         UInt32 dataOffset = 0;
                         for (int i = 0; i < contents.Count; i++)
                         {
@@ -132,6 +130,7 @@ namespace ResourceFileEditor.Manager
                                 {
                                     throw new EntryPointNotFoundException("Empty stream");
                                 }
+                                ms.Close();
                                 contents[i].file!.Close();
                                 contents[i].file = null;
                             }
@@ -150,6 +149,9 @@ namespace ResourceFileEditor.Manager
                             FileManager.FileManager.writeByteArray(file, (int)(tableOffset + tableEntryOffset), buffer);
                             tableEntryOffset += Convert.ToUInt32(buffer.Length);
                         }
+                        byte[] dummyBuffer = [0, 0, 0, 0];
+                        FileManager.FileManager.writeByteArray(file, (int)(tableOffset + tableEntryOffset), dummyBuffer);
+                        tableEntryOffset += Convert.ToUInt32(dummyBuffer.Length);
                         FileManager.FileManager.writeUint32Swapped(file, 8, tableEntryOffset);
                         if (((FileStream)file).Name == resourceFile)
                         {

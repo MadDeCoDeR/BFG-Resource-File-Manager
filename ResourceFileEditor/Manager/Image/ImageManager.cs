@@ -96,9 +96,9 @@ namespace ResourceFileEditor.Manager.Image
                 else if (format == (UInt32)TextureFormat.FMT_RGB565)
                 {
                     Stream parsedImageBuffer = new MemoryStream();
-                    UInt16 red_mask = 0xF800;
+                   /* UInt16 red_mask = 0xF800;
                     UInt16 green_mask = 0x7E0;
-                    UInt16 blue_mask = 0x1F;
+                    UInt16 blue_mask = 0x1F;*/
                     Stream imageBuffer = new MemoryStream(image.data);
                     int index = 0;
                     while (index < imageBuffer.Length)
@@ -107,14 +107,9 @@ namespace ResourceFileEditor.Manager.Image
                         imageBuffer.ReadExactly(pixelBuffer, 0, 2);
                         index += 2;
                         UInt16 pixel = BitConverter.ToUInt16(pixelBuffer, 0);
-                        byte red = (byte)((pixel & red_mask) >> 11);
-                        byte green = (byte)((pixel & green_mask) >> 5);
-                        byte blue = (byte)(pixel & blue_mask);
-                        //This might not be right
-                        red = (byte)(red << 3);
-                        green = (byte)(green << 2);
-                        blue = (byte)(blue << 3);
-                        byte[] parsedPixel = [red, green, blue, 255];
+                        byte color = (byte)(pixel >> 8);
+                        byte alpha = (byte)(pixel & 255);
+                        byte[] parsedPixel = [color, color, color, alpha];
                         parsedImageBuffer.Write(parsedPixel, 0, 4);
                     }
                     parsedImageBuffer.Position = 0;

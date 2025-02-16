@@ -1,26 +1,26 @@
 ﻿DOOM 3 BFG Edition .bimage specification
 
-|Byte       |Size  		           |Swaped|Description                  					   |
+|Byte       |Size                |Swaped|Description                               |
 |-----------|:------------------:|:----:|-----------------------------------------:|
-|0x0        |8      			       | Yes  |Timestamp								                 |
-|0x8        |4      			       | Yes  |The file's "magic" identifier (BIM10)	   |
-|0x12       |4      			       | Yes  |Texture Type			     			               |
-|0x16	      |4      			       | Yes  |Texture Format		   					             |
-|0x20	      |4	    			       | Yes  |Color Format							                 |
-|0x24	      |4					         | Yes 	|Texture Width							               |
-|0x28	      |4					         | Yes  |Texture Height							               |
-|0x32	      |4					         | Yes	|Number of Levels 						             |
+|0x0        |8                   | Yes  |Timestamp                                 |
+|0x8        |4                   | Yes  |The file's "magic" identifier (BIM10)     |
+|0x12       |4                   | Yes  |Texture Type                              |
+|0x16       |4                   | Yes  |Texture Format                            |
+|0x20       |4                   | Yes  |Color Format                              |
+|0x24       |4                   | Yes  |Texture Width                             |
+|0x28       |4                   | Yes  |Texture Height                            |
+|0x32       |4                   | Yes  |Number of Levels                          |
 
 
 For each Level data are using the following specification
 |Byte             |Size           |Swaped|Description                    |
 |-----------------|:-------------:|:----:|------------------------------:|
 |0x0              |4              | Yes  |Level                          |
-|0x4              |4			        | Yes  |Z-index                        |
-|0x8			        |4			        | Yes  |Image Width					           |
-|0x12		          |4		          | Yes  |Image Height					         |
-|0x16			        |4			        | Yes  |Image Data Size(datasize)		   |
-|0x20			        |datasize		    | No*	 |Image Data					           |
+|0x4              |4              | Yes  |Z-index                        |
+|0x8              |4              | Yes  |Image Width                    |
+|0x12             |4              | Yes  |Image Height                   |
+|0x16             |4              | Yes  |Image Data Size(datasize)      |
+|0x20             |datasize       | No*  |Image Data                     |
 
 On both tables if swaped is 'Yes' it means that the first half and last half of bytes are switched between them.
 

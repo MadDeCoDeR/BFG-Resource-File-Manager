@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace ResourceFileEditor.Manager.Image
 {
@@ -103,13 +104,12 @@ namespace ResourceFileEditor.Manager.Image
                     int index = 0;
                     while (index < imageBuffer.Length)
                     {
-                        byte[] pixelBuffer = new byte[2];
-                        imageBuffer.ReadExactly(pixelBuffer, 0, 2);
+                        UInt16 pixel = FileManager.FileManager.readUint16Swapped(imageBuffer, index);
                         index += 2;
-                        UInt16 pixel = BitConverter.ToUInt16(pixelBuffer, 0);
-                        byte color = (byte)(pixel >> 8);
-                        byte alpha = (byte)(pixel & 255);
-                        byte[] parsedPixel = [color, color, color, alpha];
+                        byte red = (byte)(((pixel >> 11) & 31) << 3);
+                        byte green = (byte)(((pixel >> 5) & 63) << 2);
+                        byte blue = (byte)((pixel & 31) << 3);
+                        byte[] parsedPixel = [red, green, blue, 255];
                         parsedImageBuffer.Write(parsedPixel, 0, 4);
                     }
                     parsedImageBuffer.Position = 0;

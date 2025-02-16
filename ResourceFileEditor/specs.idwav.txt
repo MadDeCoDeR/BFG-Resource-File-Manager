@@ -1,24 +1,24 @@
 ﻿DOOM 3 BFG Edition .idwav specification
 
-|Byte       |Size  		 |Swaped|Description                                                            				       |
+|Byte       |Size  				 |Swaped|Description                                                            									   |
 |-----------|:------------------:|:----:|-------------------------------------------------------------------------------------------------------------:|
-|0x0        |4      		 | Yes  |The file's "magic" identifier (0x6D7A7274)                             				       |
-|0x4        |8      		 | Yes  |Timestamp												       |
-|0x12       |1      		 | No   |loaded flag (must be true)				               					       |
-|0x13	    |4      		 | Yes  |xma2's loopBegin shortcut			                        				       |
-|0x17	    |4	    		 | Yes  |length of the audio                                                    				       |
+|0x0        |4      			 | Yes  |The file's "magic" identifier (0x6D7A7274)                             									   |
+|0x4        |8      			 | Yes  |Timestamp																									   |
+|0x12       |1      			 | No   |loaded flag (must be true)				               														   |
+|0x13	    |4      			 | Yes  |xma2's loopBegin shortcut			                        												   |
+|0x17	    |4	    			 | Yes  |length of the audio                                                    									   |
 |0x21	    |WAVEFORMATEX Length | No  	|WAVEFORMATEX chunk (check https://docs.microsoft.com/en-us/windows/win32/api/mmeapi/ns-mmeapi-waveformatex)   |
-|chunk size |4			 | Yes  |Amplitudes array length										       |
-|prev + 4   |amplitude num	 | No	|Amplitudes array 											       |
-|prev + amps|4			 | Yes	|Total buffer Size 											       |
-|prev + 4   |4			 | Yes	|Buffer array length 											       |
+|chunk size |4					 | Yes  |Amplitudes array length																					   |
+|prev + 4   |amplitude num		 | No	|Amplitudes array 																							   |
+|prev + amps|4					 | Yes	|Total buffer Size 																							   |
+|prev + 4   |4					 | Yes	|Buffer array length 																						   |
 
 Unlike amplitudes which is a byte array, the buffer array have entries of the following format
 |Byte             |Size           |Swaped|Description                                       |
 |-----------------|:-------------:|:----:|-------------------------------------------------:|
 |0x0              |4              | Yes  |Number of Buffer samples                          |
-|0x4              |4		  | Yes  |Buffer Size                                       |
-|0x8		  |buffer size    | No   |Buffer Data					    |
+|0x4              |4			  | Yes  |Buffer Size                                       |
+|0x8			  |buffer size    | No   |Buffer Data										|
 
 On both tables if swaped is 'Yes' it means that the first half and last half of bytes are switched between them.
 

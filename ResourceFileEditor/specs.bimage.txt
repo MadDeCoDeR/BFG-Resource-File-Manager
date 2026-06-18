@@ -10,9 +10,10 @@
 |0x24       |4                   | Yes  |Texture Width                             |
 |0x28       |4                   | Yes  |Texture Height                            |
 |0x32       |4                   | Yes  |Number of Levels                          |
+|0x36       |EOF                 | No   |Data*                                     |
 
 
-For each Level data are using the following specification
+*The Data are separated by Levels and are using the following specification
 |Byte             |Size           |Swaped|Description                    |
 |-----------------|:-------------:|:----:|------------------------------:|
 |0x0              |4              | Yes  |Level                          |

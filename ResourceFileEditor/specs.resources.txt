@@ -5,6 +5,7 @@
 |0x0        |4        | Yes  |The file's "magic" identifier (0xD000000D)                             |
 |0x4        |4        | Yes  |The table of Contents offset (point to the end of the data) (tocoffset)|
 |0x8        |4        | Yes  |The byte length of the Table of Contents (tocsize)                     |
+|0x12       |tocoffset| No   |Data                                                                   |
 |tocoffset  |4        | Yes  |The number of files inside the resource file                           |
 |tocoffset+4|tocsize-4| No   |Table of Contents                                                      |
 |tocsize-4  |4        | No   |Dummy value (just a zero)                                              |

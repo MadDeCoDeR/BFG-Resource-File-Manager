@@ -12,8 +12,9 @@
 |prev + 4   |amplitude num       | No   |Amplitudes array                                                                                              |
 |prev + amps|4                   | Yes  |Total buffer Size                                                                                             |
 |prev + 4   |4                   | Yes  |Buffer array length                                                                                           |
+|prev + 8   |EOF                 | No   |Data*                                                                                                         |
 
-Unlike amplitudes which is a byte array, the buffer array have entries of the following format
+*The Data, unlike amplitudes, which is a byte array, is an array of buffers and each entry has the following format
 |Byte             |Size           |Swaped|Description                                       |
 |-----------------|:-------------:|:----:|-------------------------------------------------:|
 |0x0              |4              | Yes  |Number of Buffer samples                          |

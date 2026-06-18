@@ -4,7 +4,7 @@
 |-----------|:------------------:|:----:|-------------------------------------------------------------------------------------------------------------:|
 |0x0        |4                   | Yes  |The file's "magic" identifier (0x6D7A7274)                                                                    |
 |0x4        |8                   | Yes  |Timestamp                                                                                                     |
-|0x12       |1                   | No   |loaded flag (must be true)                                                                                    |
+|0x12       |1                   | No   |flag to mark if a file have been loaded by the engine when the idwav was created (useless?)                   |
 |0x13       |4                   | Yes  |xma2's loopBegin shortcut                                                                                     |
 |0x17       |4                   | Yes  |length of the audio                                                                                           |
 |0x21       |WAVEFORMATEX Length | No   |WAVEFORMATEX chunk (check https://docs.microsoft.com/en-us/windows/win32/api/mmeapi/ns-mmeapi-waveformatex)   |
